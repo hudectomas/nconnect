@@ -1,9 +1,11 @@
 import { createRouter, createWebHistory } from "vue-router";
+
 import PresentationView from "../views/Presentation/PresentationView.vue";
 import AboutView from "../views/LandingPages/AboutUs/AboutView.vue";
 import ContactView from "../views/LandingPages/ContactUs/ContactView.vue";
 import AuthorView from "../views/LandingPages/Author/AuthorView.vue";
-import SignInBasicView from "../views/LandingPages/SignIn/BasicView.vue";
+import SignInBasicView from "../views/LandingPages/SignIn/BasicView.vue"; //
+import SignUp from "../views/LandingPages/SignIn/SignUp.vue"; //
 import PageHeaders from "../layouts/sections/page-sections/page-headers/HeadersView.vue";
 import PageFeatures from "../layouts/sections/page-sections/features/FeaturesView.vue";
 import NavigationNavbars from "../layouts/sections/navigation/navbars/NavbarsView.vue";
@@ -23,14 +25,32 @@ import ElDropdowns from "../layouts/sections/elements/dropdowns/DropdownsView.vu
 import ElProgressBars from "../layouts/sections/elements/progress-bars/ProgressBarsView.vue";
 import ElToggles from "../layouts/sections/elements/toggles/TogglesView.vue";
 import ElTypography from "../layouts/sections/elements/typography/TypographyView.vue";
+
+import AdminView from "../views/AdminView.vue"; //
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+
     {
       path: "/",
       name: "presentation",
       component: PresentationView,
     },
+
+    {
+      path: "/admin",
+      name: "admin",
+      component: AdminView,
+    },
+
+    {
+      path: "/admin",
+      name: "admin",
+      component: AdminView,
+    },
+
+
     {
       path: "/pages/landing-pages/about-us",
       name: "about",
@@ -51,6 +71,13 @@ const router = createRouter({
       name: "signin-basic",
       component: SignInBasicView,
     },
+    {
+      path: "/pages/landing-pages/signup",
+      name: "signup",
+      component: SignUp,
+      meta: { requiresAuth: true },
+    },
+
     {
       path: "/sections/page-sections/page-headers",
       name: "page-headers",

@@ -95,12 +95,14 @@ onMounted(() => {
                   </div>
                   <p class="mt-4 text-sm text-center">
                     Don't have an account?
-                    <a
-                      href="#"
-                      class="text-success text-gradient font-weight-bold"
-                      >Sign up</a
+                    <router-link
+                        to="/pages/landing-pages/signup"
+                        class="text-success text-gradient font-weight-bold"
                     >
+                      Sign up
+                    </router-link>
                   </p>
+
                 </form>
               </div>
             </div>
