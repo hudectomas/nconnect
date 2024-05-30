@@ -27,31 +27,26 @@ import ElToggles from "../layouts/sections/elements/toggles/TogglesView.vue";
 import ElTypography from "../layouts/sections/elements/typography/TypographyView.vue";
 
 import AdminView from "../views/AdminView.vue"; //
+import AdminDashboard from "../components/AdminDashboard.vue";
 
 const router = createRouter({
     history: createWebHistory(
         import.meta.env.BASE_URL),
-    routes: [
-
-        {
+    routes: [{
             path: "/",
             name: "presentation",
             component: PresentationView,
         },
-
         {
             path: "/admin",
             name: "admin",
             component: AdminView,
+            children: [{
+                path: 'dashboard',
+                name: 'admin-dashboard',
+                component: AdminDashboard,
+            }, ],
         },
-
-        {
-            path: "/admin",
-            name: "admin",
-            component: AdminView,
-        },
-
-
         {
             path: "/pages/landing-pages/about-us",
             name: "about",
@@ -78,7 +73,6 @@ const router = createRouter({
             component: SignUp,
             meta: { requiresAuth: true },
         },
-
         {
             path: "/sections/page-sections/page-headers",
             name: "page-headers",
@@ -108,11 +102,6 @@ const router = createRouter({
             path: "/sections/input-areas/inputs",
             name: "inputareas-inputs",
             component: InputAreasInputs,
-        },
-        {
-            path: "/sections/input-areas/forms",
-            name: "inputareas-forms",
-            component: InputAreasForms,
         },
         {
             path: "/sections/attention-catchers/alerts",

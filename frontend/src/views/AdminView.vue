@@ -8,7 +8,7 @@
       </div>
       <div>
         <label for="password">Heslo:</label>
-        <input type="password" id="password" v-model="password" required>
+        <input type="password" id="password" v-model="password" required autocomplete="current-password">
       </div>
       <button type="submit">Prihlásiť sa</button>
     </form>
@@ -27,23 +27,25 @@ export default {
     };
   },
   methods: {
-    async login() {
-  try {
-    const response = await axios.post('http://localhost:8000/api/login', {
-      email: this.email,
-      password: this.password
-    });
-    localStorage.setItem('token', response.data.token);
-    this.$router.push({ name: 'Dashboard' });
-  } catch (error) {
-    console.error('Prihlásenie zlyhalo:', error);
+  async login() {
+    try {
+      const response = await axios.post('http://localhost:8000/api/login', {
+        email: this.email,
+        password: this.password
+      });
+
+      const token = response.data.token;
+      localStorage.setItem('token', token); // Uloží token do lokálneho úložiska
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // Nastaví token ako predvolený authorization header pre všetky ďalšie požiadavky
+      this.$router.push({ name: 'AdminDashboard' }); // Presmeruje na administrátorský dashboard
+    } catch (error) {
+      console.error('Prihlásenie zlyhalo:', error);
+    }
   }
 }
 
-  }
 };
 </script>
-
 
 <style scoped>
 #admin-panel {
