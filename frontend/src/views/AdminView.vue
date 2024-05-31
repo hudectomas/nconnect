@@ -19,7 +19,7 @@
 import axios from 'axios';
 
 export default {
-  name: 'AdminPanel',
+  name: 'AdminView',
   data() {
     return {
       email: '',
@@ -27,23 +27,23 @@ export default {
     };
   },
   methods: {
-  async login() {
-    try {
-      const response = await axios.post('http://localhost:8000/api/login', {
-        email: this.email,
-        password: this.password
-      });
+    async login() {
+      try {
+        const response = await axios.post('http://localhost:8000/api/login', {
+          email: this.email,
+          password: this.password
+        });
 
-      const token = response.data.token;
-      localStorage.setItem('token', token); // Uloží token do lokálneho úložiska
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // Nastaví token ako predvolený authorization header pre všetky ďalšie požiadavky
-      this.$router.push({ name: 'AdminDashboard' }); // Presmeruje na administrátorský dashboard
-    } catch (error) {
-      console.error('Prihlásenie zlyhalo:', error);
+        const token = response.data.token;
+        localStorage.setItem('token', token); // Save the token to local storage
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // Set the token as the default authorization header for all subsequent requests
+        this.$router.push({ name: 'admin-dashboard' }); // Redirect to the admin dashboard
+      } catch (error) {
+        console.error('Prihlásenie zlyhalo:', error);
+        // Handle login error (e.g., display error message)
+      }
     }
   }
-}
-
 };
 </script>
 
