@@ -26,6 +26,7 @@ import ElToggles from '../layouts/sections/elements/toggles/TogglesView.vue';
 import ElTypography from '../layouts/sections/elements/typography/TypographyView.vue';
 import AdminView from '../views/AdminView.vue';
 import AdminDashboard from '../components/AdminDashboard.vue';
+import UserDashboard from '../components/UserDashboard.vue';
 
 const router = createRouter({
     history: createWebHistory(
@@ -34,6 +35,7 @@ const router = createRouter({
         { path: '/', name: 'presentation', component: PresentationView },
         { path: '/admin', name: 'admin', component: AdminView },
         { path: '/admin/dashboard', name: 'admin-dashboard', component: AdminDashboard },
+        { path: '/user/dashboard', name: 'user-dashboard', component: UserDashboard },
         { path: '/pages/landing-pages/about-us', name: 'about', component: AboutView },
         { path: '/pages/landing-pages/contact-us', name: 'contactus', component: ContactView },
         { path: '/pages/landing-pages/author', name: 'author', component: AuthorView },

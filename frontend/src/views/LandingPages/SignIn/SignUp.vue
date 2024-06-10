@@ -30,23 +30,19 @@
               <div class="card-body">
                 <form role="form" class="text-start" @submit.prevent="register">
 
-                  <div id="app">
-                    <form class="form-container">
-                      <div class="form-group">
-                        <input v-model="name" id="name" type="text" placeholder="meno" />
-                      </div>
+                  <div class="form-container"> <!-- Moved form-container outside of the form -->
+                    <div class="form-group">
+                      <input v-model="name" id="name" type="text" placeholder="meno" />
+                    </div>
 
-                      <div class="form-group">
-                        <input v-model="email" id="email" type="email" placeholder="email" />
-                      </div>
+                    <div class="form-group">
+                      <input v-model="email" id="email" type="email" placeholder="email" />
+                    </div>
 
-                      <div class="form-group">
-                        <input v-model="password" id="password" type="password" placeholder="heslo" />
-                      </div>
-                    </form>
+                    <div class="form-group">
+                      <input v-model="password" id="password" type="password" placeholder="heslo" />
+                    </div>
                   </div>
-
-
 
                   <div class="text-center">
                     <MaterialButton
@@ -176,7 +172,7 @@ const register = async () => {
       console.error("other errors",err); // Logs other errors (like network errors) to the console
     }
   }
-  }
+}
 
 onMounted(() => {
   setMaterialInput();

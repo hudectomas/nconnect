@@ -25,18 +25,19 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::middleware('auth:sanctum')->group(function () {
     // Route for creating API tokens
     Route::post('/tokens/create', [ApiTokenController::class, 'create']);
-    
+
     // Route for retrieving user details
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    
+
     // Route for accessing admin-specific features
     Route::post('/admin', function (Request $request) {
-        // Check if the authenticated user has admin privileges
-        if ($request->user()->isAdmin()) {
+        // Check if the authenticated user is an admin
+        $user = Auth::user();
+        if ($user && $user->is_admin) {
             // If user is admin, return user details
-            return $request->user();
+            return $user;
         } else {
             // If user is not admin, return 403 Forbidden status
             return response()->json(['error' => 'Unauthorized.'], 403);
