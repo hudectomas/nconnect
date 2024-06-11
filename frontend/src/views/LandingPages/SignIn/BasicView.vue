@@ -58,6 +58,15 @@
                   <button type="submit">Prihlásiť sa</button>
                   <p v-if="loginError" style="color: red;">{{ loginError }}</p> <!-- Display login error message -->
                 </form>
+                <p class="mt-4 text-sm text-center">
+                  Don't have an account?
+                  <router-link
+                      to="/pages/landing-pages/signup"
+                      class="text-success text-gradient font-weight-bold"
+                  >
+                    Sign up
+                  </router-link>
+                </p>
               </div>
             </div>
           </div>

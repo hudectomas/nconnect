@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ApiTokenController;
+use App\Models\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +30,34 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route for retrieving user details
     Route::get('/user', function (Request $request) {
         return $request->user();
+    });
+
+    // Route for retrieving all users
+    Route::get('/users', function () {
+        // Fetch all users
+        $users = User::all();
+
+        // Return users as JSON response
+        return response()->json($users);
+    });
+
+    // Route for setting user as sponsor
+    Route::put('/users/{userId}/set-sponsor', function ($userId) {
+        // Find the user by ID
+        $user = User::find($userId);
+
+        // If user exists
+        if ($user) {
+            // Toggle is_sponsor value
+            $user->is_sponsor = $user->is_sponsor == 1 ? 0 : 1;
+            $user->save();
+
+            // Return success message
+            return response()->json(['message' => 'User sponsor status updated'], 200);
+        } else {
+            // If user not found, return error
+            return response()->json(['error' => 'User not found'], 404);
+        }
     });
 
     // Route for accessing admin-specific features
