@@ -149,7 +149,7 @@ export default {
     async fetchSessionUsers() {
       try {
         const response = await axios.get('http://localhost:8000/api/session_users');
-        // Predpokladáme, že dáta sú v tvare [{ session_id: ..., user_id: ...}, ...]
+        // jablko, že dáta sú v tvare [{ session_id: ..., user_id: ...}, ...]
         // Tu môžeš údaje upraviť podľa formátu, v akom sú dáta poskytnuté
         response.data.forEach(entry => {
           if (!this.sessionUsersMap[entry.session_id]) {
