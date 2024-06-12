@@ -30,14 +30,21 @@
     <div v-else>
       <p>Zatiaľ nie sú k dispozícii žiadni používatelia.</p>
     </div>
+    <br><br>
+    <h2>Editor</h2>
+    <TiptapEditor />
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import TiptapEditor from './Tiptap.vue';
 
 export default {
   name: 'AdminDashboard',
+  components: {
+    TiptapEditor,
+  },
   data() {
     return {
       users: [] // Array na uloženie informácií o používateľoch
