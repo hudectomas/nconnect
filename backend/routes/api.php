@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ApiTokenController;
+use App\Http\Controllers\SessionController;
 use App\Models\User;
+use App\Http\Controllers\SessionUserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,10 +21,14 @@ use App\Models\User;
 */
 
 // Routes for authentication and registration
+// Routes for authentication and registration
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
+Route::post('/session', [SessionController::class, 'create']);
+Route::get('/session', [SessionController::class, 'index']);
+Route::post('/session_users', [SessionUserController::class, 'store']); // POST route for storing session users
+Route::get('/session_users', [SessionUserController::class, 'index']); // GET route for fetching session users
 
-// Routes requiring authentication with Sanctum middleware
 Route::middleware('auth:sanctum')->group(function () {
     // Route for creating API tokens
     Route::post('/tokens/create', [ApiTokenController::class, 'create']);
