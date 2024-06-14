@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
+use Illuminate\Http\Request;
 
 Route::post('/api/pages', [PageController::class, 'store']);
 Route::get('/page/{slug}', [PageController::class, 'show']);

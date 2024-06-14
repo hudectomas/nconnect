@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import Tiptap from './Tiptap.vue';
+</script>
+
 <template>
   <div id="admin-dashboard">
     <h1>Admin Dashboard</h1>
@@ -33,20 +37,16 @@
     <br><br>
     <h2>Editor</h2>
     <input v-model="pageTitle" placeholder="Zadajte názov podstránky" />
-    <TiptapEditor v-model="pageContent"/>
+    <Tiptap v-model="pageContent" />
     <button @click="publishContent">Publikovať</button>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import axios from 'axios';
-import TiptapEditor from './Tiptap.vue';
 
 export default {
   name: 'AdminDashboard',
-  components: {
-    TiptapEditor,
-  },
   data() {
     return {
       users: [],

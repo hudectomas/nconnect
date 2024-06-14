@@ -22,6 +22,14 @@ export default {
     EditorContent,
   },
 
+  props: {
+    modelValue: {
+        type: String,
+        default: '',
+    },
+  },
+  emits: ['update:modelValue'],
+
   data() {
     return {
       editor: null,
@@ -39,6 +47,9 @@ export default {
         TextStyle,
         Color,
       ],
+      onUpdate: () => {
+          this.$emit('update:modelValue', this.editor.getHTML())
+      }
     })
   },
 
@@ -55,6 +66,15 @@ export default {
     },
     setColor(color) {
       this.editor.chain().focus().setColor(color).run()
+    },
+  },
+  watch: {
+    modelValue(value) {
+        const isSame = this.editor.getHTML() === value;
+        if (isSame) {
+            return;
+        }
+        this.editor.commands.setContent(value, false);
     },
   },
 }

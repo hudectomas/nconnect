@@ -14,7 +14,7 @@ class PageController extends Controller
             'content' => 'required',
         ]);
 
-        $slug = \Str::slug($request->title);
+        $slug = $this->slugify($request->title);
 
         $page = Page::create([
             'title' => $request->title,
@@ -30,6 +30,10 @@ class PageController extends Controller
         $page = Page::where('slug', $slug)->firstOrFail();
 
         return view('page', compact('page'));
+    }
+
+    private function slugify(string $text): string {
+        return strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $text)));
     }
 }
 
