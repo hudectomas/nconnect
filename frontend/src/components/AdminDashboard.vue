@@ -35,6 +35,62 @@ import Tiptap from './Tiptap.vue';
       <p>Zatiaľ nie sú k dispozícii žiadni používatelia.</p>
     </div>
     <br><br>
+    <div>
+      <h2>Vytvoriť novú session</h2>
+      <form @submit.prevent="createSession" class="session-form">
+        <div class="form-group">
+          <label for="sessionName">Názov:</label>
+          <input type="text" id="sessionName" v-model="sessionName" required>
+        </div>
+        <div class="form-group">
+          <label for="sessionCapacity">Kapacita:</label>
+          <input type="number" id="sessionCapacity" v-model="sessionCapacity" required>
+        </div>
+        <div class="form-group">
+          <label for="sessionStartTime">Začiatok:</label>
+          <input type="datetime-local" id="sessionStartTime" v-model="sessionStartTime" required>
+        </div>
+        <div class="form-group">
+          <label for="sessionEndTime">Koniec:</label>
+          <input type="datetime-local" id="sessionEndTime" v-model="sessionEndTime" required>
+        </div>
+        <button type="submit">Vytvoriť</button>
+      </form>
+    </div>
+
+    <!-- Tabuľka sessions -->
+    <div v-if="sessions.length > 0">
+      <h2>Všetky sessions</h2>
+      <table>
+        <thead>
+        <tr>
+          <th>Názov</th>
+          <th>Začiatok</th>
+          <th>Koniec</th>
+          <th>Kapacita</th>
+          <th>Prihlásení používatelia</th> <!-- Nový stĺpec -->
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="session in sessions" :key="session.id">
+          <td>{{ session.session_name }}</td>
+          <td>{{ session.start_time }}</td>
+          <td>{{ session.end_time }}</td>
+          <td>{{ session.capacity }}</td>
+          <td>
+            <ul>
+              <li v-for="user in sessionUsers(session.id)" :key="user.id">
+                {{ user.name }}
+              </li>
+            </ul>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div v-else>
+      <p>Zatiaľ nie sú k dispozícii žiadne sessions.</p>
+    </div>
     <h2>Editor</h2>
     <input v-model="pageTitle" placeholder="Zadajte názov podstránky" />
     <Tiptap v-model="pageContent" />
@@ -49,14 +105,23 @@ export default {
   name: 'AdminDashboard',
   data() {
     return {
-      users: [],
       pageTitle: '',
-      pageContent: ''
+      pageContent: '',
+      users: [],
+      sessions: [],
+      sessionName: '',
+      sessionCapacity: null,
+      sessionStartTime: '',
+      sessionEndTime: '',
+      sessionUsersMap: {}, // Mapa pre ukladanie údajov o používateľoch prihlásených do jednotlivých relácií
     };
   },
   created() {
     this.checkAdmin();
     this.fetchUsers();
+    this.fetchUsers();
+    this.fetchSessions();
+    this.fetchSessionUsers(); // Načítanie údajov o používateľoch prihlásených do relácií
   },
   methods: {
     async checkAdmin() {
@@ -77,11 +142,40 @@ export default {
     async fetchUsers() {
       try {
         const response = await axios.get('http://localhost:8000/api/users');
-        console.log(response.data);
+        this.users = response.data;
         this.users = response.data;
       } catch (error) {
         console.error('Chyba pri získavaní informácií o používateľoch:', error);
       }
+    },
+    async fetchSessions() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/session');
+        this.sessions = response.data;
+      } catch (error) {
+        console.error('Chyba pri získavaní informácií o sessions:', error);
+      }
+    },
+    async fetchSessionUsers() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/session_users');
+        // Predpokladáme, že dáta sú v tvare [{ session_id: ..., user_id: ...}, ...]
+        // Tu môžeš údaje upraviť podľa formátu, v akom sú dáta poskytnuté
+        response.data.forEach(entry => {
+          if (!this.sessionUsersMap[entry.session_id]) {
+            this.sessionUsersMap[entry.session_id] = [];
+          }
+          const user = this.users.find(user => user.id === entry.user_id);
+          if (user) {
+            this.sessionUsersMap[entry.session_id].push(user);
+          }
+        });
+      } catch (error) {
+        console.error('Chyba pri získavaní údajov o prihlásených používateľoch do relácií:', error);
+      }
+    },
+    sessionUsers(sessionId) {
+      return this.sessionUsersMap[sessionId] || [];
     },
     async setSponsor(userId) {
       try {
@@ -91,9 +185,16 @@ export default {
         console.error('Chyba pri nastavovaní používateľa ako sponzora:', error);
       }
     },
+    async createSession() {
+      try {
+        // Implementácia metódy createSession
+      } catch (error) {
+        console.error('Chyba pri vytváraní session:', error);
+      }
+    },
     logout() {
       localStorage.removeItem('token');
-      this.$router.push({name: 'signin-basic'});
+      this.$router.push({ name: 'signin-basic' });
     },
     async publishContent() {
       if (!this.pageTitle || !this.pageContent) {
