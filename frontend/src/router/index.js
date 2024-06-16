@@ -27,10 +27,10 @@ import ElTypography from '../layouts/sections/elements/typography/TypographyView
 import AdminView from '../views/AdminView.vue';
 import AdminDashboard from '../components/AdminDashboard.vue';
 import UserDashboard from '../components/UserDashboard.vue';
+import GalleryView from '../views/LandingPages/Gallery/GalleryView.vue';
 
 const router = createRouter({
-    history: createWebHistory(
-        import.meta.env.BASE_URL),
+    history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         { path: '/', name: 'presentation', component: PresentationView },
         { path: '/admin', name: 'admin', component: AdminView },
@@ -41,13 +41,14 @@ const router = createRouter({
         { path: '/pages/landing-pages/author', name: 'author', component: AuthorView },
         { path: '/pages/landing-pages/basic', name: 'signin-basic', component: SignInBasicView },
         { path: '/pages/landing-pages/signup', name: 'signup', component: SignUp, meta: { requiresAuth: true } },
+        { path: '/pages/landing-pages/gallery', name: 'gallery', component: GalleryView },
         { path: '/sections/page-sections/page-headers', name: 'page-headers', component: PageHeaders },
         { path: '/sections/page-sections/features', name: 'page-features', component: PageFeatures },
         { path: '/sections/navigation/navbars', name: 'navigation-navbars', component: NavigationNavbars },
         { path: '/sections/navigation/nav-tabs', name: 'navigation-navtabs', component: NavigationNavTabs },
         { path: '/sections/navigation/pagination', name: 'navigation-pagination', component: NavigationPagination },
         { path: '/sections/input-areas/inputs', name: 'inputareas-inputs', component: InputAreasInputs },
-        { path: '/sections/input-areas/forms', name: 'inputareas-forms', component: InputAreasForms }, // Add this line
+        { path: '/sections/input-areas/forms', name: 'inputareas-forms', component: InputAreasForms },
         { path: '/sections/attention-catchers/alerts', name: 'ac-alerts', component: ACAlerts },
         { path: '/sections/attention-catchers/modals', name: 'ac-modals', component: ACModals },
         { path: '/sections/attention-catchers/tooltips-popovers', name: 'ac-tooltips-popovers', component: ACTooltipsPopovers },

@@ -213,6 +213,12 @@ watch(
                         <span>Contact Us</span>
                       </RouterLink>
                       <RouterLink
+                          :to="{ name: 'gallery' }"
+                          class="dropdown-item border-radius-md"
+                      >
+                        <span>Gallery</span>
+                      </RouterLink>
+                      <RouterLink
                         :to="{ name: 'author' }"
                         class="dropdown-item border-radius-md"
                       >
@@ -267,6 +273,7 @@ watch(
                   class="dropdown-item border-radius-md"
                 >
                   <span>Sign In</span>
+
                 </RouterLink>
               </div>
             </div>

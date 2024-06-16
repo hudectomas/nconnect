@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use App\Models\User;
+use App\Mail\WelcomeMail;
 
 class RegisterController extends Controller
 {
@@ -21,6 +23,9 @@ class RegisterController extends Controller
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['password']),
         ]);
+
+        // Odoslanie e-mailu
+        Mail::to($user->email)->send(new WelcomeMail());
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
