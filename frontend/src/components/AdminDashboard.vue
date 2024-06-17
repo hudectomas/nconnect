@@ -146,11 +146,18 @@ import Tiptap from './Tiptap.vue';
       </form>
     </div>
   </div>
+  <CreateAboutUs />
+    <EditAboutUs />
+    <ListAboutUs />
 
 </template>
 
 <script lang="ts">
 import axios from 'axios';
+import { onMounted } from 'vue';
+import CreateAboutUs from './CreateAboutUs.vue';
+import EditAboutUs from './EditAboutUs.vue';
+import AboutUsList from './ListAboutUs.vue';
 
 export default {
   name: 'AdminDashboard',
@@ -295,36 +302,37 @@ export default {
       return this.sessionUsersMap[sessionId] || [];
     },
     async uploadImage() {
-      try {
-        const imageFile = this.$refs.image.files[0];
-        const gallery = this.galleries.find(gallery => gallery.id === this.selectedGallery);
+  try {
+    const imageFile = this.$refs.image.files[0];
+    const gallery = this.galleries.find(gallery => gallery.id === this.selectedGallery);
 
-        if (!gallery) {
-          console.error('Galéria s vybraným ID nebola nájdená.');
-          return;
-        }
-
-        const formData = new FormData();
-        formData.append('image', imageFile);
-        formData.append('gallery_id', this.selectedGallery);
-        formData.append('gallery_name', gallery.name);
-        formData.append('years[]', parseInt(this.selectedYear));  // Vždy pridajte rok ako pole, aj keď je to jedna hodnota
-
-        const config = {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        };
-
-        const response = await axios.post('http://localhost:8000/api/upload-image', formData, config);
-        console.log('Obrázok bol úspešne nahratý:', response.data);
-      } catch (error) {
-        console.error('Chyba pri nahrávaní obrázka:', error);
-        if (error.response && error.response.data) {
-          console.error('Detaily chyby:', error.response.data);
-        }
-      }
+    if (!gallery) {
+      console.error('Galéria s vybraným ID nebola nájdená.');
+      return;
     }
+
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    formData.append('gallery_id', this.selectedGallery);
+    formData.append('gallery_name', gallery.name);
+    formData.append('years[]', String(parseInt(this.selectedYear)));  // Convert number to string
+
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    };
+
+    const response = await axios.post('http://localhost:8000/api/upload-image', formData, config);
+    console.log('Obrázok bol úspešne nahratý:', response.data);
+  } catch (error) {
+    console.error('Chyba pri nahrávaní obrázka:', error);
+    if (error.response && error.response.data) {
+      console.error('Detaily chyby:', error.response.data);
+    }
+  }
+}
+
 
     ,
     async fetchGalleries() {

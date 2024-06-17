@@ -28,9 +28,14 @@ import AdminView from '../views/AdminView.vue';
 import AdminDashboard from '../components/AdminDashboard.vue';
 import UserDashboard from '../components/UserDashboard.vue';
 import GalleryView from '../views/LandingPages/Gallery/GalleryView.vue';
+import CreateAboutUs from '../components/CreateAboutUs.vue'; // Importujte komponenty pre CRUD operácie
+import EditAboutUs from '../components/EditAboutUs.vue';
+import ListAboutUs from '../components/ListAboutUs.vue';
+
 
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
+    history: createWebHistory(
+        import.meta.env.BASE_URL),
     routes: [
         { path: '/', name: 'presentation', component: PresentationView },
         { path: '/admin', name: 'admin', component: AdminView },
@@ -61,6 +66,11 @@ const router = createRouter({
         { path: '/sections/elements/progress-bars', name: 'el-progress-bars', component: ElProgressBars },
         { path: '/sections/elements/toggles', name: 'el-toggles', component: ElToggles },
         { path: '/sections/elements/typography', name: 'el-typography', component: ElTypography },
+
+        // CRUD operácie pre AboutUs
+        { path: '/about-us', name: 'about-us.index', component: ListAboutUs },
+        { path: '/about-us/create', name: 'about-us.create', component: CreateAboutUs },
+        { path: '/about-us/:id/edit', name: 'about-us.edit', component: EditAboutUs },
     ],
 });
 
