@@ -37,6 +37,10 @@ Route::get('/session_users', [SessionUserController::class, 'index']); // GET ro
 Route::post('/create-gallery', [GalleryController::class, 'create']);
 Route::get('/galleries/{id}/years', [GalleryController::class, 'getYears']);
 Route::post('/upload-image', [GalleryController::class, 'uploadImage']);
+Route::post('/about-us', function (Request $request) {
+    // Tu môžete implementovať logiku na vytvorenie obsahu "about us"
+    return response()->json(['message' => 'Endpoint for creating about us content']);
+});
 
 
 Route::get('/galleries', [GalleryController::class, 'index']);
