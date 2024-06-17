@@ -1,13 +1,19 @@
 <?php
 
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Mail;
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\SessionController;
-use App\Models\User;
 use App\Http\Controllers\SessionUserController;
+use App\Mail\WelcomeMail;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\GalleryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,7 +34,12 @@ Route::post('/session', [SessionController::class, 'create']);
 Route::get('/session', [SessionController::class, 'index']);
 Route::post('/session_users', [SessionUserController::class, 'store']); // POST route for storing session users
 Route::get('/session_users', [SessionUserController::class, 'index']); // GET route for fetching session users
+Route::post('/create-gallery', [GalleryController::class, 'create']);
+Route::get('/galleries/{id}/years', [GalleryController::class, 'getYears']);
+Route::post('/upload-image', [GalleryController::class, 'uploadImage']);
 
+
+Route::get('/galleries', [GalleryController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
     // Route for creating API tokens
     Route::post('/tokens/create', [ApiTokenController::class, 'create']);
@@ -66,6 +77,7 @@ Route::middleware('auth:sanctum')->group(function () {
         }
     });
 
+
     // Route for accessing admin-specific features
     Route::post('/admin', function (Request $request) {
         // Check if the authenticated user is an admin
@@ -77,5 +89,9 @@ Route::middleware('auth:sanctum')->group(function () {
             // If user is not admin, return 403 Forbidden status
             return response()->json(['error' => 'Unauthorized.'], 403);
         }
+    });
+    Route::get('/send-mail', function () {
+        Mail::to('matuspohanka498@gmail.com')->send(new WelcomeMail());
+        return response()->json(['message' => 'Email sent!']);
     });
 });
