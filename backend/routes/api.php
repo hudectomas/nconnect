@@ -45,6 +45,9 @@ Route::get('/page/{slug}', [PageController::class, 'show']);
 Route::put('/page/{id}', [\App\Http\Controllers\PageController::class, 'update']);
 Route::delete('/page/{id}', [\App\Http\Controllers\PageController::class, 'delete']);
 
+Route::delete('session_users/{session_id}/{user_id}', [SessionUserController::class, 'destroy']);
+
+
 
 Route::get('/about-us', [\App\Http\Controllers\AboutUsController::class, 'index']);
 Route::post('/about-us', [\App\Http\Controllers\AboutUsController::class, 'store']);

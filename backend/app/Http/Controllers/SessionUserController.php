@@ -38,7 +38,7 @@ class SessionUserController extends Controller
 
             if ($existingSessionUser) {
                 $existingSessionUser->delete();
-                return response()->json(['success' => true, 'users' => $this->getSessionUsers($request->input('session_id'))], 200);
+                return response()->json(['message' => 'User removed from session successfully'], 200);
             }
 
             $sessionUser = new SessionUser([
@@ -51,15 +51,30 @@ class SessionUserController extends Controller
 
             $sessionUser->save();
 
-            return response()->json(['success' => true, 'users' => $this->getSessionUsers($request->input('session_id'))], 201);
+            return response()->json(['message' => 'User added to session successfully'], 201);
         } catch (\Exception $e) {
             Log::error('Failed to add user to session.', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json(['error' => 'Failed to add user to session', 'message' => $e->getMessage()], 500);
         }
     }
 
-    public function getSessionUsers($sessionId)
+    public function destroy($session_id, $user_id)
     {
-        return SessionUser::where('session_id', $sessionId)->get();
+        try {
+            $sessionUser = SessionUser::where('session_id', $session_id)
+                                      ->where('user_id', $user_id)
+                                      ->first();
+
+            if (!$sessionUser) {
+                return response()->json(['error' => 'Session user not found.'], 404);
+            }
+
+            $sessionUser->delete();
+
+            return response()->json(['message' => 'Session user successfully unregistered.']);
+        } catch (\Exception $e) {
+            Log::error('Error deleting session user: ' . $e->getMessage());
+            return response()->json(['error' => 'Internal server error. Please try again later.'], 500);
+        }
     }
 }
