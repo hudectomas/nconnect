@@ -31,6 +31,7 @@ import GalleryView from '../views/LandingPages/Gallery/GalleryView.vue';
 import CreateAboutUs from '../components/CreateAboutUs.vue'; // Importujte komponenty pre CRUD operácie
 import EditAboutUs from '../components/EditAboutUs.vue';
 import ListAboutUs from '../components/ListAboutUs.vue';
+import tip from '@/views/tip.vue';
 
 
 const router = createRouter({
@@ -66,6 +67,8 @@ const router = createRouter({
         { path: '/sections/elements/progress-bars', name: 'el-progress-bars', component: ElProgressBars },
         { path: '/sections/elements/toggles', name: 'el-toggles', component: ElToggles },
         { path: '/sections/elements/typography', name: 'el-typography', component: ElTypography },
+
+        { path: '/pages/:slug', name: 'pages', component: tip },
 
         // CRUD operácie pre AboutUs
         { path: '/about-us', name: 'about-us.index', component: ListAboutUs },

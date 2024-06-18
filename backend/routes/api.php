@@ -63,7 +63,7 @@ Route::get('/seminars/{seminar}', [SeminarController::class, 'show']);
 Route::put('/seminars/{seminar}', [SeminarController::class, 'update']);
 Route::delete('/seminars/{seminar}', [SeminarController::class, 'destroy']);
 
-
+Route::get('/pages/{slug}', [\App\Http\Controllers\PageController::class, 'show' ]);
 Route::get('/galleries', [GalleryController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
     // Route for creating API tokens
