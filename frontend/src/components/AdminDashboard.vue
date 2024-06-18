@@ -253,7 +253,7 @@ import Tiptap from './Tiptap.vue';
       <p>Žiadne semináre nie sú momentálne dostupné.</p>
     </div>
 
-
+    <CreateAboutUs />
 
 
 
