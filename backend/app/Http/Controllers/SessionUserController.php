@@ -11,13 +11,10 @@ class SessionUserController extends Controller
     public function index(Request $request)
     {
         try {
-            // Fetch all session users
             $sessionUsers = SessionUser::all();
-
             return response()->json($sessionUsers, 200);
         } catch (\Exception $e) {
             Log::error('Failed to retrieve session users.', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-
             return response()->json(['error' => 'Failed to retrieve session users', 'message' => $e->getMessage()], 500);
         }
     }
@@ -27,41 +24,42 @@ class SessionUserController extends Controller
         Log::info('Request data:', $request->all());
 
         try {
-            // Validácia požiadavku
             $request->validate([
                 'session_id' => 'required|integer|exists:sessions,id',
-                'user_id' => 'required|integer|exists:users,id', // Validácia user_id
+                'user_id' => 'required|integer|exists:users,id',
                 'session_name' => 'required|string|max:255',
                 'user_name' => 'required|string|max:255',
-                'capacity' => 'required|integer', // Validácia capacity
+                'capacity' => 'required|integer',
             ]);
 
-            // Overenie, či užívateľ už je prihlásený do session
             $existingSessionUser = SessionUser::where('session_id', $request->input('session_id'))
                 ->where('user_id', $request->input('user_id'))
                 ->first();
 
             if ($existingSessionUser) {
-                $existingSessionUser->delete(); // Ak existuje záznam, vymaže sa
-                return response()->json(['message' => 'User removed from session successfully'], 200);
+                $existingSessionUser->delete();
+                return response()->json(['success' => true, 'users' => $this->getSessionUsers($request->input('session_id'))], 200);
             }
 
-            // Vytvorenie nového záznamu v session_users
             $sessionUser = new SessionUser([
                 'session_id' => $request->input('session_id'),
-                'user_id' => $request->input('user_id'), // Uloženie user_id
+                'user_id' => $request->input('user_id'),
                 'session_name' => $request->input('session_name'),
                 'user_name' => $request->input('user_name'),
-                'capacity' => $request->input('capacity'), // Uloženie capacity
+                'capacity' => $request->input('capacity'),
             ]);
 
             $sessionUser->save();
 
-            return response()->json(['message' => 'User added to session successfully'], 201);
+            return response()->json(['success' => true, 'users' => $this->getSessionUsers($request->input('session_id'))], 201);
         } catch (\Exception $e) {
             Log::error('Failed to add user to session.', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-
             return response()->json(['error' => 'Failed to add user to session', 'message' => $e->getMessage()], 500);
         }
+    }
+
+    public function getSessionUsers($sessionId)
+    {
+        return SessionUser::where('session_id', $sessionId)->get();
     }
 }

@@ -13,24 +13,25 @@
       <h2>Všetky Sessions</h2>
       <table>
         <thead>
-        <tr>
-          <th>Session Name</th>
-          <th>Start Time</th>
-          <th>End Time</th>
-          <th>Action</th>
-        </tr>
+          <tr>
+            <th>Session Name</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Action</th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="session in sessions" :key="session.id">
-          <td>{{ session.session_name }}</td>
-          <td>{{ session.start_time }}</td>
-          <td>{{ session.end_time }}</td>
-          <td>
-            <button :style="{ backgroundColor: isUserRegistered(session) ? '#FF5733' : '#4CAF50' }" @click="prihlasitSa(session)">
-              {{ isUserRegistered(session) ? 'Odhlásiť sa' : 'Registrovať sa' }}
-            </button>
-          </td>
-        </tr>
+          <tr v-for="session in sessions" :key="session.id">
+            <td>{{ session.session_name }}</td>
+            <td>{{ session.start_time }}</td>
+            <td>{{ session.end_time }}</td>
+            <td>
+              <button :style="{ backgroundColor: isUserRegistered(session) ? '#d32f2f' : '#4CAF50' }"
+                      @click="toggleRegistration(session)">
+                {{ isUserRegistered(session) ? 'Odhlásiť sa' : 'Registrovať sa' }}
+              </button>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -53,7 +54,7 @@ export default {
       sponsor: '',
       isSponsor: false,
       sessions: [],
-      isUserLoggedIn: false // Pridanie premennej pre označenie, či je používateľ prihlásený
+      isUserLoggedIn: false,
     };
   },
   created() {
@@ -65,7 +66,7 @@ export default {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          this.$router.push({name: 'signin-basic'});
+          this.$router.push({ name: 'signin-basic' });
           return;
         }
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -77,15 +78,15 @@ export default {
             this.sponsor = response.data.name;
             this.isSponsor = true;
           }
-          this.isUserLoggedIn = true; // Nastavenie premennej na true, ak používateľ je prihlásený
+          this.isUserLoggedIn = true;
         } else {
           console.error('Error: No username found in response');
-          this.$router.push({name: 'user-login'});
+          this.$router.push({ name: 'user-login' });
         }
       } catch (error) {
         console.error('Access denied:', error);
         localStorage.removeItem('token');
-        this.$router.push({name: 'user-login'});
+        this.$router.push({ name: 'user-login' });
       }
     },
     async fetchSessions() {
@@ -96,15 +97,35 @@ export default {
         console.error('Error fetching sessions:', error);
       }
     },
-    async prihlasitSa(session) {
+    async toggleRegistration(session) {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          this.$router.push({name: 'signin-basic'});
+          this.$router.push({ name: 'signin-basic' });
           return;
         }
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
+        // Check for conflicting sessions
+        const conflictingSession = this.sessions.find(s => s !== session && this.isUserRegistered(s) &&
+          (s.start_time <= session.end_time && s.end_time >= session.start_time));
+
+        if (conflictingSession) {
+          alert(`You are already registered for another session "${conflictingSession.session_name}" at the same time.`);
+          return;
+        }
+
+        if (this.isUserRegistered(session)) {
+          await this.unregisterUser(session);
+        } else {
+          await this.registerUser(session);
+        }
+      } catch (error) {
+        console.error('Error toggling registration:', error);
+      }
+    },
+    async registerUser(session) {
+      try {
         const response = await axios.post('http://localhost:8000/api/session_users', {
           session_id: session.id,
           user_id: this.userId,
@@ -115,15 +136,27 @@ export default {
 
         if (response.data.success) {
           session.users = response.data.users;
-          session.registered = true; // Aktualizácia stavu registrácie používateľa
+          session.registered = true;
         }
       } catch (error) {
-        console.error('Error logging into session:', error);
+        console.error('Error registering for session:', error);
+      }
+    },
+    async unregisterUser(session) {
+      try {
+        const response = await axios.delete(`http://localhost:8000/api/session_users/${session.id}/${this.userId}`);
+
+        if (response.data.success) {
+          session.users = response.data.users;
+          session.registered = false;
+        }
+      } catch (error) {
+        console.error('Error unregistering from session:', error);
       }
     },
     logout() {
       localStorage.removeItem('token');
-      this.$router.push({name: 'signin-basic'});
+      this.$router.push({ name: 'signin-basic' });
     },
     isUserRegistered(session) {
       return session.registered === true;
@@ -164,5 +197,9 @@ button {
 
 button:hover {
   background-color: #45a049;
+}
+
+button[style*="background-color: #d32f2f"]:hover {
+  background-color: #d32f2f;
 }
 </style>
