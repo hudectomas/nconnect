@@ -5,22 +5,87 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Gallery;
+use App\Models\Image;
+
 
 class GalleryController extends Controller
 {
     public function index()
     {
-        $galleries = Gallery::all(); // Predpokladá sa, že máte model Gallery
-
+        $galleries = Gallery::all();
         return response()->json($galleries);
     }
+
+    public function getImageUrl(Request $request)
+    {
+        $request->validate([
+            'galleryName' => 'required|string',
+            'year' => 'required|integer|min:1900|max:9999',
+            'imageName' => 'required|string',
+        ]);
+
+        $galleryName = $request->input('galleryName');
+        $year = $request->input('year');
+        $imageName = $request->input('imageName');
+
+
+        $gallery = Gallery::where('name', $galleryName)->first();
+
+        if (!$gallery) {
+            return response()->json(['error' => 'Galéria nebola nájdená.'], 404);
+        }
+
+
+        $imageNames = json_decode($gallery->image_names, true) ?? [];
+
+
+        if (in_array($imageName, $imageNames)) {
+
+            $imageUrl = asset('storage/images/' . $galleryName . '/' . $year . '/' . $imageName);
+            return response()->json(['image_url' => $imageUrl]);
+        } else {
+            return response()->json(['error' => 'Obrázok s daným názvom nebol nájdený pre zvolenú galériu a rok.'], 404);
+        }
+    }
+
+    public function getImages(Request $request)
+    {
+        $request->validate([
+            'galleryName' => 'required|string',
+            'year' => 'required|integer|min:1900|max:9999',
+        ]);
+
+        $galleryName = $request->input('galleryName');
+        $year = $request->input('year');
+
+
+        $gallery = Gallery::where('name', $galleryName)->first();
+
+        if (!$gallery) {
+            return response()->json(['error' => 'Galéria nebola nájdená.'], 404);
+        }
+
+
+        $imageNames = json_decode($gallery->image_names, true) ?? [];
+
+
+        $images = [];
+
+
+        foreach ($imageNames as $imageName) {
+            $imageUrl = asset('storage/images/' . $galleryName . '/' . $year . '/' . $imageName);
+            $images[] = ['image_url' => $imageUrl, 'image_name' => $imageName];
+        }
+
+        return response()->json($images);
+    }
+
 
     public function getYears($id)
     {
         try {
             $gallery = Gallery::findOrFail($id);
-            $years = $gallery->years; // Predpokladáme, že máte reláciu years definovanú v modeli Gallery
-
+            $years = $gallery->years;
             return response()->json($years);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Ročníky pre galériu neboli nájdené.'], 404);
@@ -31,23 +96,18 @@ class GalleryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'years' => 'required|array', // Požaduje pole
-            'years.*' => 'integer|min:1900|max:9999', // Požaduje integer hodnoty v rozsahu 1900 až 9999
-            // Ďalšie validácie podľa potreby
+            'years' => 'required|array',
+            'years.*' => 'integer|min:1900|max:9999',
         ]);
 
-        // Vytvorenie nového záznamu v databáze pre galériu
         $gallery = new Gallery();
         $gallery->name = $request->name;
-        $gallery->years = json_encode($request->years); // Uloženie poľa ročníkov ako JSON reťazec
-
+        $gallery->years = json_encode($request->years);
         $gallery->save();
 
         return response()->json(['message' => 'Galéria bola úspešne vytvorená.', 'gallery' => $gallery], 200);
     }
-    // Kontrolér pre upload obrázku
-    // Kontrolér pre upload obrázku
-    // Kontrolér pre upload obrázku
+
     public function uploadImage(Request $request)
     {
         $request->validate([
@@ -62,19 +122,21 @@ class GalleryController extends Controller
         $galleryName = $request->input('gallery_name');
         $years = $request->input('years');
         $image = $request->file('image');
+        $encryptedImageName = $image->hashName();
 
-        // Uloženie obrázka do priečinka 'storage/app/public/images/{galleryName}/{years}'
+
         $imagePath = $image->store('public/images/' . $galleryName . '/' . implode('_', $years));
 
-        // Ak chcete získať verejnú URL adresu k uloženému obrázku, môžete ju získať pomocou helpera asset()
+
         $imageUrl = asset(str_replace('public/', 'storage/', $imagePath));
 
-        // Uloženie údajov do databázy alebo iná logika
-        // ...
+
+        $gallery = Gallery::find($galleryId);
+        $imageNames = json_decode($gallery->image_names, true) ?? [];
+        $imageNames[] = $encryptedImageName;
+        $gallery->image_names = json_encode($imageNames);
+        $gallery->save();
 
         return response()->json(['message' => 'Obrázok bol úspešne nahratý.', 'image_url' => $imageUrl]);
     }
-
-
-
 }
