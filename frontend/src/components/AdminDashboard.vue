@@ -252,11 +252,35 @@ import Tiptap from './Tiptap.vue';
     <div v-else>
       <p>Žiadne semináre nie sú momentálne dostupné.</p>
     </div>
+    <div>
+      <h2>Pages</h2>
+      <form @submit.prevent="createPage" class="gallery-form">
+        <div class="form-group">
+          <label for="galleryName">Názov stránky:</label>
+          <input type="text" v-model="pageTitle" required />
+        </div>
+        <Tiptap v-model="pageContent" />
 
+        <button type="submit">Save</button>
+      </form>
+
+      <h2>Všetky stránky</h2>
+      <table>
+        <thead>
+        <tr>
+          <th>Názov</th>
+          <th>Operácia</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="page in pageList">
+          <td>{{ page.title }}</td>
+          <td><button @click="async () => await deletePage(page.id)">Zmazať</button></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
     <CreateAboutUs />
-
-
-
   </div>
 </template>
 
@@ -300,6 +324,9 @@ export default {
         seminarLongDescription: ''
       },
 
+      pageTitle: '',
+      pageContent: '',
+      pageList: [],
     };
   },
   created() {
@@ -677,7 +704,37 @@ export default {
     },
     removeYear(index) {
       this.selectedYears.splice(index, 1);
-    }
+    },
+    async createPage() {
+      try {
+        const response = await axios.post('http://localhost:8000/api/create-pages', {
+          title: this.pageTitle,
+          content: this.pageContent,
+        })
+        this.fetchPages()
+        console.log('Page created:', response.data)
+      } catch (error) {
+        console.error('Error creating page:', error)
+      }
+    },
+    async deletePage(id: number) {
+      try {
+        const response = await axios.delete('http://localhost:8000/api/page/' + id);
+        this.fetchPages()
+        console.log('Page deleted:', response.data)
+      } catch (error) {
+        console.error('Error deleting page:', error)
+      }
+    },
+    async fetchPages() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/pages')
+        console.log('pages:', response.data)
+        this.pageList = response.data
+      } catch (error) {
+        console.error('Error creating page:', error)
+      }
+    },
   },
   mounted() {
     // Fetch speakers when component is mounted
@@ -699,6 +756,7 @@ export default {
         .catch(error => {
           console.error('Error fetching seminars:', error);
         });
+    this.fetchPages();
   }
 
 

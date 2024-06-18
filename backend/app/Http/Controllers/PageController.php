@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Models\Page;
 
 class PageController extends Controller
@@ -36,6 +37,11 @@ class PageController extends Controller
         $page = Page::where('slug', $slug)->firstOrFail();
         return response()->json($page);
         // return view('page', compact('page'));
+    }
+
+    public function delete(int $id) : Response {
+        Page::find($id)->delete();
+        return response(status: 200);
     }
 
     private function slugify(string $text): string {

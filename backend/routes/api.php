@@ -14,6 +14,7 @@ use App\Mail\WelcomeMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\SpeakerController;
 use App\Http\Controllers\SeminarController;
 /*
@@ -37,6 +38,13 @@ Route::get('/session_users', [SessionUserController::class, 'index']); // GET ro
 Route::post('/create-gallery', [GalleryController::class, 'create']);
 Route::get('/galleries/{id}/years', [GalleryController::class, 'getYears']);
 Route::post('/upload-image', [GalleryController::class, 'uploadImage']);
+
+Route::post('/create-pages', [PageController::class, 'store']);
+Route::get('/pages', [PageController::class, 'index']);
+Route::get('/page/{slug}', [PageController::class, 'show']);
+Route::put('/page/{id}', [\App\Http\Controllers\PageController::class, 'update']);
+Route::delete('/page/{id}', [\App\Http\Controllers\PageController::class, 'delete']);
+
 
 Route::get('/about-us', [\App\Http\Controllers\AboutUsController::class, 'index']);
 Route::post('/about-us', [\App\Http\Controllers\AboutUsController::class, 'store']);
