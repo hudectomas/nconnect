@@ -147,8 +147,6 @@ import Tiptap from './Tiptap.vue';
     </div>
   </div>
   <CreateAboutUs />
-    <EditAboutUs />
-    <ListAboutUs />
 
 </template>
 
@@ -156,8 +154,7 @@ import Tiptap from './Tiptap.vue';
 import axios from 'axios';
 import { onMounted } from 'vue';
 import CreateAboutUs from './CreateAboutUs.vue';
-import EditAboutUs from './EditAboutUs.vue';
-import AboutUsList from './ListAboutUs.vue';
+
 
 export default {
   name: 'AdminDashboard',

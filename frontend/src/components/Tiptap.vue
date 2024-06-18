@@ -6,7 +6,7 @@
       <button @click="setParagraph">P</button>
       <input type="color" @input="setColor($event.target.value)" />
     </div>
-    <editor-content :editor="editor" />
+    <editor-content :editor="editor" class="h-[300px]" />
   </div>
 </template>
 
@@ -24,8 +24,8 @@ export default {
 
   props: {
     modelValue: {
-        type: String,
-        default: '',
+      type: String,
+      default: '',
     },
   },
   emits: ['update:modelValue'],
@@ -38,7 +38,7 @@ export default {
 
   mounted() {
     this.editor = new Editor({
-      content: '<p>I’m running Tiptap with Vue.js. 🎉</p>',
+      content: this.modelValue || '',
       extensions: [
         StarterKit,
         Heading.configure({
@@ -48,8 +48,8 @@ export default {
         Color,
       ],
       onUpdate: () => {
-          this.$emit('update:modelValue', this.editor.getHTML())
-      }
+        this.$emit('update:modelValue', this.editor.getHTML())
+      },
     })
   },
 
@@ -70,11 +70,11 @@ export default {
   },
   watch: {
     modelValue(value) {
-        const isSame = this.editor.getHTML() === value;
-        if (isSame) {
-            return;
-        }
-        this.editor.commands.setContent(value, false);
+      const isSame = this.editor.getHTML() === value
+      if (isSame) {
+        return
+      }
+      this.editor.commands.setContent(value, false)
     },
   },
 }
@@ -86,5 +86,12 @@ export default {
 }
 .toolbar button {
   margin-right: 5px;
+}
+.ProseMirror {
+  height: 200px;
+  border: 1px solid gray;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 20px;
 }
 </style>

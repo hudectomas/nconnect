@@ -7,6 +7,12 @@ use App\Models\Page;
 
 class PageController extends Controller
 {
+    public function index()
+    {
+        $pages = Page::all();
+        return response()->json($pages);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -28,12 +34,11 @@ class PageController extends Controller
     public function show($slug)
     {
         $page = Page::where('slug', $slug)->firstOrFail();
-
-        return view('page', compact('page'));
+        return response()->json($page);
+        // return view('page', compact('page'));
     }
 
     private function slugify(string $text): string {
         return strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $text)));
     }
 }
-
