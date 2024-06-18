@@ -10,58 +10,49 @@
         loading="lazy"
     >
       <span class="mask bg-gradient-dark opacity-6"></span>
+
       <div class="container my-auto">
         <div class="row">
           <div class="col-lg-4 col-md-8 col-12 mx-auto">
             <div class="card z-index-0 fadeIn3 fadeInBottom">
-              <div
-                  class="card-header p-0 position-relative mt-n4 mx-3 z-index-2"
-              >
-                <div
-                    class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1"
-                >
-                  <h4
-                      class="text-white font-weight-bolder text-center mt-2 mb-0"
-                  >
+              <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                <div class="bg-gradient-success shadow-success border-radius-lg py-3 pe-1">
+                  <h4 class="text-white font-weight-bolder text-center mt-2 mb-0">
                     Sign Up
                   </h4>
                 </div>
               </div>
               <div class="card-body">
                 <form role="form" class="text-start" @submit.prevent="register">
-
-                  <div class="form-container"> <!-- Moved form-container outside of the form -->
+                  <div class="form-container">
                     <div class="form-group">
-                      <input v-model="name" id="name" type="text" placeholder="meno" />
+                      <div class="input-group input-group-outline my-3">
+                        <input class="form-control" v-model="name" id="name" type="text" placeholder="meno" required />
+                      </div>
                     </div>
-
                     <div class="form-group">
-                      <input v-model="email" id="email" type="email" placeholder="email" />
+                      <div class="input-group input-group-outline my-3">
+                        <input class="form-control" v-model="email" id="email" type="email" placeholder="email" required />
+                      </div>
                     </div>
-
                     <div class="form-group">
-                      <input v-model="password" id="password" type="password" placeholder="heslo" />
+                      <div class="input-group input-group-outline my-3">
+                        <input class="form-control" v-model="password" id="password" type="password" placeholder="heslo" required />
+                      </div>
                     </div>
                   </div>
-
                   <div class="text-center">
-                    <MaterialButton
-                        class="my-4 mb-2"
-                        variant="gradient"
-                        color="success"
-                        fullWidth
-                        type="submit"
-                    >
+                    <MaterialButton class="my-4 mb-2" variant="gradient" color="success" fullWidth type="submit">
                       Sign Up
                     </MaterialButton>
                   </div>
-                  <!-- ... -->
                 </form>
               </div>
             </div>
           </div>
         </div>
       </div>
+
       <footer class="footer position-absolute bottom-2 py-2 w-100">
         <div class="container">
           <div class="row align-items-center justify-content-lg-between">

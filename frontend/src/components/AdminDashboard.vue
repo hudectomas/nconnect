@@ -145,9 +145,119 @@ import Tiptap from './Tiptap.vue';
         <button type="submit">Vytvoriť</button>
       </form>
     </div>
-  </div>
-  <CreateAboutUs />
 
+
+<!-- Vytvorenie speakera -->
+      <div class="speaker-box">
+        <h2>Pridať rečníka</h2>
+        <form @submit.prevent="createSpeaker" class="speaker-form">
+          <!-- Polia pre informácie o rečníkovi -->
+          <div class="form-group">
+            <label for="speakerName">Meno:</label>
+            <input type="text" id="speakerName" v-model="speakerName" required>
+          </div>
+          <div class="form-group">
+            <label for="shortDescription">Krátky popis:</label>
+            <textarea id="shortDescription" v-model="shortDescription"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="longDescription">Dlhý popis:</label>
+            <textarea id="longDescription" v-model="longDescription"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="image">Obrázok:</label>
+            <input type="file" id="image" ref="image" accept="image/*" required>
+          </div>
+          <div class="form-group">
+            <label for="socialLinks">Sociálne odkazy:</label>
+            <input type="text" id="socialLinks" v-model="socialLinks">
+          </div>
+          <button type="submit">Pridať rečníka</button>
+        </form>
+      </div>
+
+    <!-- Zobrazenie speakerov -->
+    <h2>Speakers</h2>
+    <div v-if="speakers.length > 0" class="speakers-container">
+      <div v-for="speaker in speakers" :key="speaker.id" class="speaker-card">
+        <div class="speaker-image">
+          <img :src="speaker.imageUrl" alt="Speaker's Picture">
+        </div>
+        <div class="speaker-info">
+          <h3>{{ speaker.name }}</h3>
+          <p>{{ speaker.short_description }}</p>
+          <p>{{ speaker.long_description }}</p>
+          <a :href="speaker.social_links" target="_blank">
+            <i class="fab fa-instagram"></i> <!-- Instagram icon -->
+          </a>
+        </div>
+        <div class="speaker-actions">
+          <button @click="editSpeaker(speaker)">Edit</button>
+          <button v-if="editingSpeakerId === speaker.id" @click="updateSpeaker(speaker.id)">Update</button>
+          <button @click="removeSpeaker(speaker.id)" class="remove-btn">Remove</button>
+        </div>
+      </div>
+    </div>
+    <div v-else>
+      <p>No speakers available at the moment.</p>
+    </div>
+
+    <br>
+    <br>
+
+    <!-- Vytvorenie seminára -->
+    <div class="seminar-box">
+      <h2>Pridať seminár</h2>
+      <form @submit.prevent="createSeminar" class="seminar-form">
+        <!-- Polia pre informácie o seminári -->
+        <div class="form-group">
+          <label for="seminarName">Názov:</label>
+          <input type="text" id="seminarName" v-model="seminar.name" required>
+        </div>
+        <div class="form-group">
+          <label for="speaker">Rečník:</label>
+          <select id="speaker" v-model="seminar.selectedSpeaker">
+            <option v-for="speaker in speakers" :value="speaker.id">{{ speaker.name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="seminarShortDescription">Krátky popis:</label>
+          <textarea id="seminarShortDescription" v-model="seminar.seminarShortDescription"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="seminarLongDescription">Dlhý popis:</label>
+          <textarea id="seminarLongDescription" v-model="seminar.seminarLongDescription"></textarea>
+        </div>
+        <button type="submit">Pridať seminár</button>
+      </form>
+    </div>
+
+    <!-- Zobrazenie seminárov -->
+    <h2>Semináre</h2>
+    <div v-if="seminars.length > 0" class="seminars-container">
+      <div v-for="seminar in seminars" :key="seminar.id" class="seminar-card">
+        <div class="seminar-info">
+          <h3>{{ seminar.title }}</h3>
+          <p>Rečník: {{ findSpeakerName(seminar.speaker_id) }}</p>
+          <p>{{ seminar.short_description }}</p>
+          <p>{{ seminar.long_description }}</p>
+        </div>
+        <div class="seminar-actions">
+          <button @click="editSeminar(seminar)">Editovať</button>
+          <button v-if="editingSeminarId === seminar.id" @click="updateSeminar(seminar.id)">Aktualizovať</button>
+          <button @click="removeSeminar(seminar.id)" class="remove-btn">Odstrániť</button>
+        </div>
+      </div>
+    </div>
+    <div v-else>
+      <p>Žiadne semináre nie sú momentálne dostupné.</p>
+    </div>
+
+
+
+
+
+  </div>
 </template>
 
 <script lang="ts">
@@ -172,7 +282,24 @@ export default {
       galleryName: '',
       galleryYears: [],
       selectedYears: [''], // Začiatočný ročník
-      selectedYear: ''
+      selectedYear: '',
+
+      speakers: [],
+      speakerName: '',
+      shortDescription: '',
+      longDescription: '',
+      socialLinks: '',
+      editingSpeakerId: null,
+
+      seminars: [], // Array of seminar objects
+      editingSeminarId: null, // ID of the seminar being edited
+      seminar: { // Object for the seminar form fields
+        name: '',
+        selectedSpeaker: '',
+        seminarShortDescription: '',
+        seminarLongDescription: ''
+      },
+
     };
   },
   created() {
@@ -183,6 +310,195 @@ export default {
     this.fetchGalleries();
   },
   methods: {
+
+    async createSpeaker() {
+      try {
+        let formData = new FormData();
+        formData.append('name', this.speakerName);
+        formData.append('short_description', this.shortDescription);
+        formData.append('long_description', this.longDescription);
+        formData.append('image', this.$refs.image.files[0]); // Get the file from the ref
+        formData.append('social_links', this.socialLinks);
+
+        const response = await axios.post('http://localhost:8000/api/speaker', formData);
+
+        console.log('New speaker was created:', response.data);
+
+        // Add the new speaker to your speakers array
+        this.speakers.push(response.data);
+
+        // Reset the form fields and file input
+        this.speakerName = '';
+        this.shortDescription = '';
+        this.longDescription = '';
+        this.$refs.image.value = ''; // Reset the file input
+        this.socialLinks = '';
+      } catch (error) {
+        console.error('Error creating speaker:', error);
+      }
+    },
+
+
+    // Method to handle removing a speaker
+      removeSpeaker(speakerId) {
+        if (confirm('Are you sure you want to remove this speaker?')) {
+          // Use axios to call API endpoint
+          axios.delete(`http://localhost:8000/api/speakers/${speakerId}`)
+              .then(response => {
+                // Remove the speaker from the speakers array
+                this.speakers = this.speakers.filter(s => s.id !== speakerId);
+              })
+              .catch(error => {
+                console.error('Error removing speaker:', error);
+              });
+        }
+      },
+
+    async updateSpeaker(speakerId) {
+      let formData = new FormData();
+      formData.append('name', this.speakerName);
+      formData.append('short_description', this.shortDescription);
+      formData.append('long_description', this.longDescription);
+      // Check if a new image file was provided
+      if (this.$refs.image.files.length > 0) {
+        formData.append('image', this.$refs.image.files[0]);
+      }
+      formData.append('social_links', this.socialLinks);
+
+      try {
+        formData.append('_method', 'PUT');
+        const response = await axios.post(`http://localhost:8000/api/speakers/${speakerId}`, formData);
+
+        console.log('Speaker updated:', response.data);
+
+        // Find the index of the speaker in the array
+        const index = this.speakers.findIndex(s => s.id === speakerId);
+        // Update the speaker in your speakers array
+        this.speakers[index] = response.data;
+
+        // Reset edit state and form fields
+        this.editingSpeakerId = null;
+        this.speakerName = '';
+        this.shortDescription = '';
+        this.longDescription = '';
+        if (this.$refs.image.files.length > 0) {
+          this.$refs.image.value = ''; // Reset the file input if a new image was uploaded
+        }
+        this.socialLinks = '';
+      } catch (error) {
+        console.error('Error updating speaker:', error);
+      }
+    },
+
+    editSpeaker(speaker) {
+      this.editingSpeakerId = speaker.id;
+      // Set form fields to the values of the speaker being edited
+      this.speakerName = speaker.name;
+      this.shortDescription = speaker.short_description;
+      this.longDescription = speaker.long_description;
+      // Note: Handling image preview/editing can be complex and may require additional logic
+      this.socialLinks = speaker.social_links;
+    },
+    async createSeminar() {
+      try {
+        let formData = new FormData();
+        formData.append('title', this.seminar.name);
+        formData.append('speaker_id', this.seminar.selectedSpeaker);
+        formData.append('short_description', this.seminar.seminarShortDescription);
+        formData.append('long_description', this.seminar.seminarLongDescription);
+
+        const response = await axios.post('http://localhost:8000/api/seminars', formData);
+
+        console.log('New seminar was created:', response.data);
+
+        // Transform the response data to match your existing data structure
+        const newSeminar = {
+          id: response.data.id,
+          name: response.data.title,
+          selectedSpeaker: response.data.speaker_id,
+          seminarShortDescription: response.data.short_description,
+          seminarLongDescription: response.data.long_description,
+          // Include any other properties you need
+        };
+
+        // Add the new seminar to your seminars array
+        this.seminars.push(newSeminar);
+
+        // Reset the form fields
+        this.resetSeminarForm();
+      } catch (error) {
+        console.error('Error creating seminar:', error);
+      }
+    },
+
+    removeSeminar(seminarId) {
+      if (confirm('Are you sure you want to remove this seminar?')) {
+        axios.delete(`http://localhost:8000/api/seminars/${seminarId}`)
+            .then(response => {
+              // Remove the seminar from the seminars array
+              this.seminars = this.seminars.filter(s => s.id !== seminarId);
+            })
+            .catch(error => {
+              console.error('Error removing seminar:', error);
+            });
+      }
+    },
+
+    async updateSeminar(seminarId) {
+      let formData = new FormData();
+      formData.append('title', this.seminar.name); // Changed from 'name' to 'title'
+      formData.append('short_description', this.seminar.seminarShortDescription); // Changed from 'seminar_short_description' to 'short_description'
+      formData.append('long_description', this.seminar.seminarLongDescription); // Changed from 'seminar_long_description' to 'long_description'
+      formData.append('speaker_id', this.seminar.selectedSpeaker);
+      formData.append('_method', 'PUT');
+
+      try {
+        const response = await axios.post(`http://localhost:8000/api/seminars/${this.editingSeminarId}`, formData);
+        console.log('Seminar updated:', response.data);
+
+        // Find the index of the seminar in the array
+        const index = this.seminars.findIndex(s => s.id === seminarId);
+
+        // Update the seminar in your seminars array for reactivity
+        if (index !== -1) {
+          this.seminars[index] = response.data; // Assign response data directly
+        }
+
+        // Reset edit state and form fields
+        this.editingSeminarId = null;
+        this.resetSeminarForm();
+      } catch (error) {
+        console.error('Error updating seminar:', error);
+      }
+    },
+
+    editSeminar(seminar) {
+      this.editingSeminarId = seminar.id;
+
+      // Set form fields to the values of the seminar being edited
+      // Make sure to use the property names from the server's response
+      this.seminar.name = seminar.title;
+      this.seminar.selectedSpeaker = seminar.speaker_id;
+      this.seminar.seminarShortDescription = seminar.short_description;
+      this.seminar.seminarLongDescription = seminar.long_description;
+    },
+
+    findSpeakerName(speakerId) {
+      const speaker = this.speakers.find(s => s.id === speakerId);
+      return speaker ? speaker.name : 'Unknown Speaker';
+    },
+
+    resetSeminarForm() {
+      // Reset the form fields
+      this.seminar.name = '';
+      this.seminar.selectedSpeaker = '';
+      this.seminar.seminarShortDescription = '';
+      this.seminar.seminarLongDescription = '';
+    },
+
+
+
+
     async createGallery() {
       try {
         // Skontrolujte, či galéria s rovnakým názvom už existuje
@@ -223,7 +539,7 @@ export default {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          this.$router.push({ name: 'admin' });
+          this.$router.push('admin');
           return;
         }
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -231,7 +547,7 @@ export default {
       } catch (error) {
         console.error('Prístup zamietnutý:', error);
         localStorage.removeItem('token');
-        this.$router.push({ name: 'signin-basic' });
+        this.$router.push('signin-basic');
       }
     },
     async fetchUsers() {
@@ -354,7 +670,7 @@ export default {
 
     logout() {
       localStorage.removeItem('token');
-      this.$router.push({ name: 'signin-basic' });
+      this.$router.push('signin-basic');
     },
     addYear() {
       this.selectedYears.push('');
@@ -362,7 +678,31 @@ export default {
     removeYear(index) {
       this.selectedYears.splice(index, 1);
     }
+  },
+  mounted() {
+    // Fetch speakers when component is mounted
+    axios.get('http://localhost:8000/api/speakers')
+        .then(response => {
+          // Set fetched speakers into speakers array
+          this.speakers = response.data;
+        })
+        .catch(error => {
+          console.error('Error fetching speakers:', error);
+        });
+
+    // Fetch seminars when component is mounted
+    axios.get('http://localhost:8000/api/seminars')
+        .then(response => {
+          // Set fetched seminars into seminars array
+          this.seminars = response.data;
+        })
+        .catch(error => {
+          console.error('Error fetching seminars:', error);
+        });
   }
+
+
+
 };
 </script>
 
@@ -413,6 +753,14 @@ tbody td {
   border-radius: 10px;
   background-color: #f9f9f9;
 }
+.speaker-form, .seminar-form {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+}
 
 .gallery-form {
   max-width: 600px;
@@ -447,4 +795,33 @@ tbody td {
   border-radius: 5px;
   box-sizing: border-box;
 }
+
+/* CSS */
+.speakers-container, .seminars-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.speaker-card, .seminar-card {
+  flex: 1;
+  min-width: 300px; /* Adjust as needed */
+  border: 1px solid #ccc;
+  padding: 1rem;
+}
+
+.speaker-image img {
+  max-width: 100%;
+  height: auto;
+}
+
+.speaker-info, .seminar-info {
+  margin-top: 1rem;
+}
+
+.speaker-actions button, .seminar-actions {
+  margin-right: .5rem;
+}
+
+
 </style>

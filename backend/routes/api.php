@@ -14,7 +14,8 @@ use App\Mail\WelcomeMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\GalleryController;
-
+use App\Http\Controllers\SpeakerController;
+use App\Http\Controllers\SeminarController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -27,7 +28,6 @@ use App\Http\Controllers\GalleryController;
 */
 
 // Routes for authentication and registration
-// Routes for authentication and registration
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/session', [SessionController::class, 'create']);
@@ -37,10 +37,23 @@ Route::get('/session_users', [SessionUserController::class, 'index']); // GET ro
 Route::post('/create-gallery', [GalleryController::class, 'create']);
 Route::get('/galleries/{id}/years', [GalleryController::class, 'getYears']);
 Route::post('/upload-image', [GalleryController::class, 'uploadImage']);
-Route::get('/about-us', [\App\Http\Controllers\AboutUsController::class, 'index']);
-Route::post('/about-us', [\App\Http\Controllers\AboutUsController::class, 'store']);
-Route::put('/about-us/{id}', [\App\Http\Controllers\AboutUsController::class, 'update']);
-Route::delete('/about-us/{id}', [\App\Http\Controllers\AboutUsController::class, 'delete']);
+Route::post('/about-us', function (Request $request) {
+    // Tu môžete implementovať logiku na vytvorenie obsahu "about us"
+    return response()->json(['message' => 'Endpoint for creating about us content']);
+});
+
+Route::post('/speaker', [SpeakerController::class, 'store']);
+Route::get('/speakers', [SpeakerController::class, 'index']);
+Route::get('/speakers/{speaker}', [SpeakerController::class, 'show']);
+Route::put('/speakers/{speaker}', [SpeakerController::class, 'update']);
+Route::delete('/speakers/{speaker}', [SpeakerController::class, 'destroy']);
+
+Route::get('/seminars', [SeminarController::class, 'index']);
+Route::post('/seminars', [SeminarController::class, 'store']);
+Route::get('/seminars/{seminar}', [SeminarController::class, 'show']);
+Route::put('/seminars/{seminar}', [SeminarController::class, 'update']);
+Route::delete('/seminars/{seminar}', [SeminarController::class, 'destroy']);
+
 
 Route::get('/galleries', [GalleryController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function () {
