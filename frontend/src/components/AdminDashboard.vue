@@ -252,6 +252,143 @@ import Tiptap from './Tiptap.vue';
     <div v-else>
       <p>Žiadne semináre nie sú momentálne dostupné.</p>
     </div>
+
+    <br>
+    <br>
+
+    <!--Pridanie stage -->
+    <div class="stage-box">
+      <h2>Pridať stage</h2>
+      <form @submit.prevent="createStage" class="stage-form">
+        <div class="form-group">
+          <label for="stageName">Názov:</label>
+          <input type="text" id="stageName" v-model="stageName" required>
+        </div>
+        <div class="form-group">
+          <label for="stageDescription">Popis:</label>
+          <textarea id="stageDescription" v-model="stageDescription"></textarea>
+        </div>
+        <button type="submit">Pridať stage</button>
+      </form>
+    </div>
+
+    <br>
+
+    <!--Zobrazenie stage -->
+    <h2>Stages</h2>
+    <div v-if="stages.length > 0" class="stages-container">
+      <div v-for="stage in stages" :key="stage.id" class="stage-card">
+        <div class="stage-info">
+          <h3>{{ stage.name }}</h3>
+          <p>{{ stage.description }}</p>
+        </div>
+        <div class="stage-actions">
+          <button @click="editStage(stage)">Edit</button>
+          <button v-if="editingStageId === stage.id" @click="updateStage(stage.id)">Update</button>
+          <button @click="removeStage(stage.id)" class="remove-btn">Remove</button>
+        </div>
+      </div>
+    </div>
+    <div v-else>
+      <p>No stages available at the moment.</p>
+    </div>
+
+    <br>
+    <br>
+
+<!--pridať časové okno-->
+    <div class="time-slot-box">
+      <h2>Pridať časové okno</h2>
+      <form @submit.prevent="createTimeSlot" class="time-slot-form">
+        <div class="form-group">
+          <label for="stage">Stage:</label>
+          <select id="stage" v-model="selectedStageId" required>
+            <option v-for="stage in stages" :key="stage.id" :value="stage.id">{{ stage.name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="startTime">Začiatok:</label>
+          <input type="datetime-local" id="startTime" v-model="startTime" required>
+        </div>
+        <div class="form-group">
+          <label for="endTime">Koniec:</label>
+          <input type="datetime-local" id="endTime" v-model="endTime" required>
+        </div>
+        <button type="submit">Pridať časové okno</button>
+      </form>
+    </div>
+
+    <br>
+
+    <!--zobraziť časové okná-->
+    <h2>Time Slots</h2>
+    <div v-if="timeSlots.length > 0" class="time-slots-container">
+      <div v-for="timeSlot in timeSlots" :key="timeSlot.id" class="time-slot-card">
+        <div class="time-slot-info">
+          <h3>{{ getStageName(timeSlot.stage_id) }}</h3>
+          <p>{{ formatDate(timeSlot.start_time) }} - {{ formatDate(timeSlot.end_time) }}</p>
+        </div>
+        <div class="time-slot-actions">
+          <button @click="editTimeSlot(timeSlot)">Edit</button>
+          <button v-if="editingTimeSlotId === timeSlot.id" @click="updateTimeSlot(timeSlot.id)">Update</button>
+          <button @click="removeTimeSlot(timeSlot.id)" class="remove-btn">Remove</button>
+        </div>
+      </div>
+    </div>
+    <div v-else>
+      <p>No time slots available at the moment.</p>
+    </div>
+
+    <br>
+    <br>
+
+    <!-- Vytvorenie časového slotu -->
+    <div class="time-slot-assignment-box">
+      <h2>Assign Time Slot to Seminar</h2>
+      <form @submit.prevent="createTimeSlotAssignment">
+        <div class="form-group">
+          <label for="seminar">Seminar:</label>
+          <select id="seminar" v-model="editingSeminarId">
+            <option v-for="seminar in seminars" :value="seminar.id" :key="seminar.id">{{ seminar.title }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="timeSlot">Time Slot:</label>
+          <select id="timeSlot" v-model="selectedTimeSlot">
+            <option v-for="timeSlot in timeSlots" :value="timeSlot.id" :key="timeSlot.id">{{ timeSlot.start_time }} - {{ timeSlot.end_time }}</option>
+          </select>
+        </div>
+        <button type="submit">Assign Time Slot</button>
+      </form>
+    </div>
+
+    <br>
+
+    <!-- Zobrazenie priradených časových slotov -->
+    <h2>Time Slot Assignments</h2>
+    <div v-if="timeSlotAssignments.length > 0" class="time-slot-assignments-container">
+      <div v-for="assignment in timeSlotAssignments" :key="assignment.id" class="time-slot-assignment-card">
+        <div class="time-slot-assignment-info">
+          <p>Seminar: {{ findSeminarName(assignment.seminar_id) }}</p>
+          <p>Time Slot: {{ findTimeSlot(assignment.time_slot_id).start_time }} - {{ findTimeSlot(assignment.time_slot_id).end_time }}</p>
+
+        </div>
+        <div class="time-slot-assignment-actions">
+          <button @click="editTimeSlotAssignment(assignment)">Edit</button>
+          <button v-if="editingAssignmentId === assignment.id" @click="updateTimeSlotAssignment(assignment.id)">Update</button>
+          <button @click="removeTimeSlotAssignment(assignment.id)" class="remove-btn">Remove</button>
+        </div>
+      </div>
+    </div>
+    <div v-else>
+      <p>No time slot assignments available at the moment.</p>
+    </div>
+
+
+    <br>
+    <br>
+
+
     <div>
       <h2>Pages</h2>
       <form @submit.prevent="createPage" class="gallery-form">
@@ -280,6 +417,11 @@ import Tiptap from './Tiptap.vue';
         </tbody>
       </table>
     </div>
+
+    <br>
+    <br>
+
+
     <CreateAboutUs />
   </div>
 </template>
@@ -327,6 +469,22 @@ export default {
       pageTitle: '',
       pageContent: '',
       pageList: [],
+
+      stages: [],
+      stageName: '',
+      stageDescription: '',
+      editingStageId: null,
+
+      timeSlots: [],
+      selectedStageId: '',
+      startTime: '',
+      endTime: '',
+      editingTimeSlotId: null,
+
+      selectedTimeSlot: '', // Ensure this is initialized properly
+      timeSlotAssignments: [], // Ensure these are populated correctly
+      editingAssignmentId: null // Ensure this is initialized properly
+
     };
   },
   created() {
@@ -337,6 +495,215 @@ export default {
     this.fetchGalleries();
   },
   methods: {
+
+    findSeminarName(seminarId) {
+      const seminar = this.seminars.find(s => s.id === seminarId);
+      return seminar ? seminar.title : 'Unknown Seminar';
+    },
+
+    findTimeSlot(timeSlotId) {
+      return this.timeSlots.find(ts => ts.id === timeSlotId) || {};
+    },
+
+    editTimeSlotAssignment(assignment) {
+      this.editingAssignmentId = assignment.id;
+      this.editingSeminarId = assignment.seminar_id;
+      this.selectedTimeSlot = assignment.time_slot_id;
+    },
+
+    async removeTimeSlotAssignment(assignmentId) {
+      if (confirm('Are you sure you want to remove this assignment?')) {
+        try {
+          await axios.delete(`http://localhost:8000/api/time-slot-assignments/${assignmentId}`);
+          this.timeSlotAssignments = this.timeSlotAssignments.filter(a => a.id !== assignmentId);
+        } catch (error) {
+          console.error('Error removing assignment:', error);
+        }
+      }
+    },
+
+
+    async fetchTimeSlotAssignments() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/time-slot-assignments');
+        this.timeSlotAssignments = response.data;
+      } catch (error) {
+        console.error('Error fetching time slot assignments:', error);
+      }
+    },
+
+    async createTimeSlotAssignment() {
+      try {
+        const formData = new FormData();
+        formData.append('seminar_id', this.editingSeminarId);
+        formData.append('time_slot_id', this.selectedTimeSlot);
+
+        const response = await axios.post('http://localhost:8000/api/time-slot-assignments', formData);
+        console.log('New time slot assignment created:', response.data);
+
+        // Fetch assignments again to update the list
+        await this.fetchTimeSlotAssignments();
+
+        // Reset the form fields
+        this.editingSeminarId = '';
+        this.selectedTimeSlot = '';
+      } catch (error) {
+        console.error('Error creating time slot assignment:', error);
+      }
+    },
+
+    async updateTimeSlotAssignment(assignmentId) {
+      try {
+        const formData = new FormData();
+        formData.append('time_slot_id', this.selectedTimeSlot);
+        formData.append('_method', 'PUT');
+
+        const response = await axios.post(`http://localhost:8000/api/time-slot-assignments/${assignmentId}`, formData);
+        console.log('Time slot assignment updated:', response.data);
+
+        // Fetch assignments again to update the list
+        await this.fetchTimeSlotAssignments();
+
+        // Reset the form fields
+        this.editingAssignmentId = null;
+        this.selectedTimeSlot = '';
+      } catch (error) {
+        console.error('Error updating time slot assignment:', error);
+      }
+    },
+
+
+
+    async fetchStages() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/stages');
+        this.stages = response.data;
+      } catch (error) {
+        console.error('Error fetching stages:', error);
+      }
+    },
+    async fetchTimeSlots() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/time-slots');
+        this.timeSlots = response.data;
+
+      } catch (error) {
+        console.error('Error fetching time slots:', error);
+      }
+    },
+
+
+
+
+    async createTimeSlot() {
+      try {
+        const response = await axios.post('http://localhost:8000/api/time-slots', {
+          stage_id: this.selectedStageId,
+          start_time: this.startTime,
+          end_time: this.endTime,
+        });
+        this.timeSlots.push(response.data);
+        this.selectedStageId = '';
+        this.startTime = '';
+        this.endTime = '';
+      } catch (error) {
+        console.error('Error creating time slot:', error);
+      }
+    },
+
+    async updateTimeSlot(timeSlotId) {
+      try {
+        const response = await axios.put(`http://localhost:8000/api/time-slots/${timeSlotId}`, {
+          stage_id: this.selectedStageId,
+          start_time: this.startTime,
+          end_time: this.endTime,
+        });
+        const index = this.timeSlots.findIndex(ts => ts.id === timeSlotId);
+        if (index !== -1) {
+          this.timeSlots[index] = response.data;
+        }
+        this.editingTimeSlotId = null;
+        this.selectedStageId = '';
+        this.startTime = '';
+        this.endTime = '';
+      } catch (error) {
+        console.error('Error updating time slot:', error);
+      }
+    },
+
+    editTimeSlot(timeSlot) {
+      this.editingTimeSlotId = timeSlot.id;
+      this.selectedStageId = timeSlot.stage_id;
+      this.startTime = timeSlot.start_time.slice(0, 16); // Format to datetime-local input
+      this.endTime = timeSlot.end_time.slice(0, 16);
+    },
+
+    async removeTimeSlot(timeSlotId) {
+      if (confirm('Are you sure you want to remove this time slot?')) {
+        try {
+          await axios.delete(`http://localhost:8000/api/time-slots/${timeSlotId}`);
+          this.timeSlots = this.timeSlots.filter(ts => ts.id !== timeSlotId);
+        } catch (error) {
+          console.error('Error removing time slot:', error);
+        }
+      }
+    },
+
+    getStageName(stageId) {
+      const stage = this.stages.find(s => s.id === stageId);
+      return stage ? stage.name : 'Unknown Stage';
+    },
+    formatDate(date) {
+      return new Date(date).toLocaleString();
+    },
+
+
+
+
+    async createStage() {
+      try {
+        const response = await axios.post('http://localhost:8000/api/stages', {
+          name: this.stageName,
+          description: this.stageDescription,
+        });
+        this.stages.push(response.data);
+        this.stageName = '';
+        this.stageDescription = '';
+      } catch (error) {
+        console.error('Error creating stage:', error);
+      }
+    },
+    async updateStage(stageId) {
+      try {
+        const response = await axios.put(`http://localhost:8000/api/stages/${stageId}`, {
+          name: this.stageName,
+          description: this.stageDescription,
+        });
+        const index = this.stages.findIndex(s => s.id === stageId);
+        this.stages[index] = response.data;
+        this.editingStageId = null;
+        this.stageName = '';
+        this.stageDescription = '';
+      } catch (error) {
+        console.error('Error updating stage:', error);
+      }
+    },
+    editStage(stage) {
+      this.editingStageId = stage.id;
+      this.stageName = stage.name;
+      this.stageDescription = stage.description;
+    },
+    async removeStage(stageId) {
+      if (confirm('Are you sure you want to remove this stage?')) {
+        try {
+          await axios.delete(`http://localhost:8000/api/stages/${stageId}`);
+          this.stages = this.stages.filter(s => s.id !== stageId);
+        } catch (error) {
+          console.error('Error removing stage:', error);
+        }
+      }
+    },
+
 
     async createSpeaker() {
       try {
@@ -351,8 +718,8 @@ export default {
 
         console.log('New speaker was created:', response.data);
 
-        // Add the new speaker to your speakers array
-        this.speakers.push(response.data);
+        // Fetch speakers again to ensure the list is up to date
+        await this.fetchSpeakers();
 
         // Reset the form fields and file input
         this.speakerName = '';
@@ -398,19 +765,15 @@ export default {
 
         console.log('Speaker updated:', response.data);
 
-        // Find the index of the speaker in the array
-        const index = this.speakers.findIndex(s => s.id === speakerId);
-        // Update the speaker in your speakers array
-        this.speakers[index] = response.data;
+        // Fetch speakers again to ensure the list is up to date
+        await this.fetchSpeakers();
 
         // Reset edit state and form fields
         this.editingSpeakerId = null;
         this.speakerName = '';
         this.shortDescription = '';
         this.longDescription = '';
-        if (this.$refs.image.files.length > 0) {
-          this.$refs.image.value = ''; // Reset the file input if a new image was uploaded
-        }
+        this.$refs.image.value = ''; // Reset the file input
         this.socialLinks = '';
       } catch (error) {
         console.error('Error updating speaker:', error);
@@ -423,9 +786,21 @@ export default {
       this.speakerName = speaker.name;
       this.shortDescription = speaker.short_description;
       this.longDescription = speaker.long_description;
-      // Note: Handling image preview/editing can be complex and may require additional logic
       this.socialLinks = speaker.social_links;
+      // If you want to display the existing image, you can set a temporary variable here
+      this.existingImageUrl = speaker.imageUrl; // Assuming the API returns the image URL as imageUrl
     },
+
+    // New method to fetch speakers
+    async fetchSpeakers() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/speakers');
+        this.speakers = response.data;
+      } catch (error) {
+        console.error('Error fetching speakers:', error);
+      }
+    },
+
     async createSeminar() {
       try {
         let formData = new FormData();
@@ -438,18 +813,8 @@ export default {
 
         console.log('New seminar was created:', response.data);
 
-        // Transform the response data to match your existing data structure
-        const newSeminar = {
-          id: response.data.id,
-          name: response.data.title,
-          selectedSpeaker: response.data.speaker_id,
-          seminarShortDescription: response.data.short_description,
-          seminarLongDescription: response.data.long_description,
-          // Include any other properties you need
-        };
-
-        // Add the new seminar to your seminars array
-        this.seminars.push(newSeminar);
+        // Fetch seminars again to ensure the list is up to date
+        await this.fetchSeminars();
 
         // Reset the form fields
         this.resetSeminarForm();
@@ -473,23 +838,18 @@ export default {
 
     async updateSeminar(seminarId) {
       let formData = new FormData();
-      formData.append('title', this.seminar.name); // Changed from 'name' to 'title'
-      formData.append('short_description', this.seminar.seminarShortDescription); // Changed from 'seminar_short_description' to 'short_description'
-      formData.append('long_description', this.seminar.seminarLongDescription); // Changed from 'seminar_long_description' to 'long_description'
+      formData.append('title', this.seminar.name);
+      formData.append('short_description', this.seminar.seminarShortDescription);
+      formData.append('long_description', this.seminar.seminarLongDescription);
       formData.append('speaker_id', this.seminar.selectedSpeaker);
       formData.append('_method', 'PUT');
 
       try {
-        const response = await axios.post(`http://localhost:8000/api/seminars/${this.editingSeminarId}`, formData);
+        const response = await axios.post(`http://localhost:8000/api/seminars/${seminarId}`, formData);
         console.log('Seminar updated:', response.data);
 
-        // Find the index of the seminar in the array
-        const index = this.seminars.findIndex(s => s.id === seminarId);
-
-        // Update the seminar in your seminars array for reactivity
-        if (index !== -1) {
-          this.seminars[index] = response.data; // Assign response data directly
-        }
+        // Fetch seminars again to ensure the list is up to date
+        await this.fetchSeminars();
 
         // Reset edit state and form fields
         this.editingSeminarId = null;
@@ -503,7 +863,6 @@ export default {
       this.editingSeminarId = seminar.id;
 
       // Set form fields to the values of the seminar being edited
-      // Make sure to use the property names from the server's response
       this.seminar.name = seminar.title;
       this.seminar.selectedSpeaker = seminar.speaker_id;
       this.seminar.seminarShortDescription = seminar.short_description;
@@ -521,6 +880,16 @@ export default {
       this.seminar.selectedSpeaker = '';
       this.seminar.seminarShortDescription = '';
       this.seminar.seminarLongDescription = '';
+    },
+
+    // New method to fetch seminars
+    async fetchSeminars() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/seminars');
+        this.seminars = response.data;
+      } catch (error) {
+        console.error('Error fetching seminars:', error);
+      }
     },
 
 
@@ -736,28 +1105,17 @@ export default {
       }
     },
   },
-  mounted() {
-    // Fetch speakers when component is mounted
-    axios.get('http://localhost:8000/api/speakers')
-        .then(response => {
-          // Set fetched speakers into speakers array
-          this.speakers = response.data;
-        })
-        .catch(error => {
-          console.error('Error fetching speakers:', error);
-        });
+  async mounted() {
+    await this.fetchSpeakers();
+    await this.fetchSeminars();
+    await this.fetchTimeSlots(); // Ensure time slots are fetched
+    await this.fetchTimeSlotAssignments(); // Fetch time slot assignments
 
-    // Fetch seminars when component is mounted
-    axios.get('http://localhost:8000/api/seminars')
-        .then(response => {
-          // Set fetched seminars into seminars array
-          this.seminars = response.data;
-        })
-        .catch(error => {
-          console.error('Error fetching seminars:', error);
-        });
+
     this.fetchPages();
-  }
+    this.fetchStages();
+  },
+
 
 
 
@@ -880,6 +1238,159 @@ tbody td {
 .speaker-actions button, .seminar-actions {
   margin-right: .5rem;
 }
+
+/* Container for stages */
+.stages-container, .time-slots-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Individual stage card */
+.stage-card, .time-slot-card {
+  flex: 1;
+  min-width: 300px; /* Adjust as needed */
+  border: 1px solid #ccc;
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 8px;
+}
+
+/* Stage information */
+.stage-info, .time-slot-info {
+  margin-top: 1rem;
+}
+
+/* Actions for each stage */
+.stage-actions button, .time-slot-actions button {
+  margin-right: .5rem;
+}
+
+/* Form for creating and editing stages */
+.stage-form, .time-slot-form {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+}
+
+/* Form group styling */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: .5rem;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: .5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Buttons styling */
+button {
+  padding: .5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  color: #000000;
+  cursor: pointer;
+}
+
+.time-slot-assignment-box {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.time-slot-assignment-box h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.time-slot-assignment-box form {
+  display: flex;
+  flex-direction: column;
+}
+
+.time-slot-assignment-box .form-group {
+  margin-bottom: 15px;
+}
+
+.time-slot-assignment-box label {
+  font-weight: bold;
+}
+
+.time-slot-assignment-box select,
+.time-slot-assignment-box button {
+  padding: 8px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+}
+
+.time-slot-assignment-box button {
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.time-slot-assignment-box button:hover {
+  background-color: #0056b3;
+}
+
+/* Style for the time slot assignments container */
+.time-slot-assignments-container {
+  margin-top: 20px;
+}
+
+.time-slot-assignment-card {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+}
+
+.time-slot-assignment-card .time-slot-assignment-info {
+  margin-bottom: 10px;
+}
+
+.time-slot-assignment-card .time-slot-assignment-info p {
+  margin: 0;
+}
+
+.time-slot-assignment-card .time-slot-assignment-actions button {
+  margin-right: 10px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.time-slot-assignment-card .time-slot-assignment-actions button.remove-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.time-slot-assignment-card .time-slot-assignment-actions button.remove-btn:hover {
+  background-color: #c82333;
+}
+
 
 
 </style>
