@@ -17,6 +17,8 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\SpeakerController;
 use App\Http\Controllers\SeminarController;
 use App\Models\Sponsor;
+use App\Http\Controllers\StageController;
+use App\Http\Controllers\TimeSlotController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -66,6 +68,18 @@ Route::post('/seminars', [SeminarController::class, 'store']);
 Route::get('/seminars/{seminar}', [SeminarController::class, 'show']);
 Route::put('/seminars/{seminar}', [SeminarController::class, 'update']);
 Route::delete('/seminars/{seminar}', [SeminarController::class, 'destroy']);
+
+Route::post('/stages', [StageController::class, 'store']);
+Route::get('/stages', [StageController::class, 'index']);
+Route::get('/stages/{stage}', [StageController::class, 'show']);
+Route::put('/stages/{stage}', [StageController::class, 'update']);
+Route::delete('/stages/{stage}', [StageController::class, 'destroy']);
+
+Route::post('/time-slots', [TimeSlotController::class, 'store']);
+Route::get('/time-slots', [TimeSlotController::class, 'index']);
+Route::get('/time-slots/{timeSlot}', [TimeSlotController::class, 'show']);
+Route::put('/time-slots/{timeSlot}', [TimeSlotController::class, 'update']);
+Route::delete('/time-slots/{timeSlot}', [TimeSlotController::class, 'destroy']);
 
 Route::get('/pages/{slug}', [\App\Http\Controllers\PageController::class, 'show' ]);
 Route::get('/galleries', [GalleryController::class, 'index']);
