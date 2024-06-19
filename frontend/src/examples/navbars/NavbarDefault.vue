@@ -120,7 +120,7 @@ watch(
         title="Designed and Coded by Creative Tim"
         data-placement="bottom"
       >
-        Material Kit 2
+        Nconnect
       </RouterLink>
       <RouterLink
         class="navbar-brand d-block d-md-none"
@@ -134,12 +134,12 @@ watch(
         title="Designed and Coded by Creative Tim"
         data-placement="bottom"
       >
-        Material Design
+        Nconnect konferencia
       </RouterLink>
       <a
         href="https://www.creative-tim.com/product/vue-material-kit-pro"
         class="btn btn-sm bg-gradient-success mb-0 ms-auto d-lg-none d-block"
-        >Buy Now</a
+        >NITRA</a
       >
       <button
         class="navbar-toggler shadow-none ms-2"
