@@ -10,7 +10,7 @@
 
     <!-- Zobrazenie všetkých sessions -->
     <div v-if="sessions.length > 0">
-      <h2>Všetky Sessions</h2>
+      <h2>Všetky Konferencie</h2>
       <table>
         <thead>
           <tr>
@@ -39,6 +39,29 @@
     <div v-else>
       <p>No sessions available.</p>
     </div>
+
+    <div>
+      <h2>Všetky time slots</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Čas</th>
+            <th>Nazov</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="timeSlot in timeSlots">
+            <td>
+              {{ timeSlot.start_time }} - {{ timeSlot.end_time }}
+            </td>
+            <td>Seminar</td>
+          </tr>
+          
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -54,14 +77,30 @@ export default {
       sponsor: '',
       isSponsor: false,
       sessions: [],
+      timeSlots: [],
       isUserLoggedIn: false,
+      editingTimeSlotId: null,
+
+      selectedTimeSlot: '', // Ensure this is initialized properly
+      timeSlotAssignments: [], // Ensure these are populated correctly
+      editingAssignmentId: null // Ensure this is initialized properly
     };
   },
   created() {
     this.checkUser();
     this.fetchSessions();
+    this.fetchTimeSlots();
   },
   methods: {
+    async fetchTimeSlots() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/time-slots');
+        this.timeSlots = response.data;
+
+      } catch (error) {
+        console.error('Error fetching time slots:', error);
+      }
+    },
     async checkUser() {
       try {
         const token = localStorage.getItem('token');
