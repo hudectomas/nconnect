@@ -1,54 +1,48 @@
-<script setup>
-// example components
-import DefaultInfoCard from "../../../../examples/cards/infoCards/DefaultInfoCard.vue";
-import CenteredBlogCard from "../../../../examples/cards/blogCards/CenteredBlogCard.vue";
+<script>
+import axios from 'axios';
+export default {
+  data() {
+    return {
+      speakers: []
+    };
+  },
+  methods: {
+    async fetchSpeakers() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/speakers');
+        this.speakers = response.data;
+      } catch (error) {
+        console.error('Error fetching speakers:', error);
+      }
+    }
+  },
+  created() {
+    this.fetchSpeakers();
+  }
+};
+
 </script>
 <template>
-  <section class="py-7">
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-lg-6">
-          <div class="row justify-content-start">
-            <DefaultInfoCard
-              color="info"
-              icon="public"
-              title="Fully integrated"
-              description="We get insulted by others, lose trust for those We get back
-                  freezes"
-            />
-            <DefaultInfoCard
-              color="info"
-              icon="payments"
-              title="Payments functionality"
-              description="We get insulted by others, lose trust for those We get back
-                  freezes"
-            />
-          </div>
-          <div class="row justify-content-start mt-4">
-            <DefaultInfoCard
-              color="info"
-              icon="apps"
-              title="Prebuilt components"
-              description="We get insulted by others, lose trust for those We get back
-                  freezes"
-            />
-            <DefaultInfoCard
-              color="info"
-              icon="3p"
-              title="Improved platform"
-              description="We get insulted by others, lose trust for those We get back
-                  freezes"
-            />
-          </div>
+
+        <!-- Zobrazenie speakerov -->
+        <h2>Speakers</h2>
+    <div v-if="speakers.length > 0" class="speakers-container">
+      <div v-for="speaker in speakers" :key="speaker.id" class="speaker-card">
+        <div class="speaker-image">
+          <img :src="speaker.imageUrl" alt="Speaker's Picture">
         </div>
-        <div class="col-lg-4 ms-auto mt-lg-0 mt-6">
-          <CenteredBlogCard
-            image="https://images.unsplash.com/photo-1544717302-de2939b7ef71?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
-            title="Get insights on Search"
-            description="Website visitors today demand a frictionless user expericence — especially when using search. Because of the hight standards."
-          />
+        <div class="speaker-info">
+          <h3>{{ speaker.name }}</h3>
+          <p>{{ speaker.short_description }}</p>
+          <p>{{ speaker.long_description }}</p>
+          <a :href="speaker.social_links" target="_blank">
+            <i class="fab fa-instagram"></i> <!-- Instagram icon -->
+          </a>
         </div>
       </div>
     </div>
-  </section>
+    <div v-else>
+      <p>No speakers available at the moment.</p>
+    </div>
+
 </template>
