@@ -94,14 +94,12 @@ import Tiptap from './Tiptap.vue';
       <p>Zatiaľ nie sú k dispozícii žiadne sessions.</p>
     </div>
 
-    <!-- Formulár pre nahrávanie nového obrázka -->
     <div>
-      <h2>Nahrať obrázok do galérie
-      </h2>
+      <h2>Nahrať obrázok do galérie</h2>
       <form @submit.prevent="uploadImage" enctype="multipart/form-data">
         <div class="form-group">
           <label for="image">Obrázok:</label>
-          <input type="file" id="image" ref="image" accept="image/*" required>
+          <input type="file" id="image" ref="image" accept="image/*" @change="handleFileChange" required>
         </div>
         <div class="form-group">
           <label for="gallery">Galéria:</label>
@@ -109,7 +107,6 @@ import Tiptap from './Tiptap.vue';
             <option value="">Vyberte galériu</option>
             <option v-for="gallery in galleries" :key="gallery.id" :value="gallery.id">{{ gallery.name }}</option>
           </select>
-
         </div>
         <div class="form-group" v-if="galleryYears.length > 0">
           <label for="year">Ročník:</label>
@@ -122,7 +119,6 @@ import Tiptap from './Tiptap.vue';
           <label for="year">Vybraný ročník:</label>
           <span>{{ selectedYear }}</span>
         </div>
-
         <button type="submit">Nahrať</button>
       </form>
     </div>
@@ -436,6 +432,7 @@ export default {
   name: 'AdminDashboard',
   data() {
     return {
+      imageFile: null,
       users: [],
       sessions: [],
       sessionName: '',
@@ -495,6 +492,10 @@ export default {
     this.fetchGalleries();
   },
   methods: {
+    handleFileChange(event) {
+      this.imageFile = event.target.files[0];
+      console.log('Vybraný súbor:', this.imageFile);
+    },
 
     findSeminarName(seminarId) {
       const seminar = this.seminars.find(s => s.id === seminarId);
@@ -1011,39 +1012,41 @@ export default {
       return this.sessionUsersMap[sessionId] || [];
     },
     async uploadImage() {
-  try {
-    const imageFile = this.$refs.image.files[0];
-    const gallery = this.galleries.find(gallery => gallery.id === this.selectedGallery);
+      try {
+        if (!this.imageFile) {
+          console.error('Súbor nebol vybraný.');
+          return;
+        }
 
-    if (!gallery) {
-      console.error('Galéria s vybraným ID nebola nájdená.');
-      return;
-    }
+        const gallery = this.galleries.find(gallery => gallery.id === this.selectedGallery);
+        if (!gallery) {
+          console.error('Galéria s vybraným ID nebola nájdená.');
+          return;
+        }
 
-    const formData = new FormData();
-    formData.append('image', imageFile);
-    formData.append('gallery_id', this.selectedGallery);
-    formData.append('gallery_name', gallery.name);
-    formData.append('years[]', String(parseInt(this.selectedYear)));  // Convert number to string
+        const formData = new FormData();
+        formData.append('image', this.imageFile);
+        formData.append('gallery_id', this.selectedGallery);
+        formData.append('gallery_name', gallery.name);
+        formData.append('years[]', this.selectedYear); // Zmena na pole
 
-    const config = {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+        const config = {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        };
+
+        const response = await axios.post('http://localhost:8000/api/upload-image', formData, config);
+        console.log('Obrázok bol úspešne nahratý:', response.data);
+      } catch (error) {
+        console.error('Chyba pri nahrávaní obrázka:', error);
+        if (error.response && error.response.data) {
+          console.error('Detaily chyby:', error.response.data);
+        }
       }
-    };
-
-    const response = await axios.post('http://localhost:8000/api/upload-image', formData, config);
-    console.log('Obrázok bol úspešne nahratý:', response.data);
-  } catch (error) {
-    console.error('Chyba pri nahrávaní obrázka:', error);
-    if (error.response && error.response.data) {
-      console.error('Detaily chyby:', error.response.data);
     }
-  }
-}
+  ,
 
-
-    ,
     async fetchGalleries() {
       try {
         const response = await axios.get('http://localhost:8000/api/galleries');
