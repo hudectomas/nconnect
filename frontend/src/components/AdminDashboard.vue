@@ -1069,7 +1069,7 @@ export default {
 
     logout() {
       localStorage.removeItem('token');
-      this.$router.push('signin-basic');
+      this.$router.push('/pages/landing-pages/basic');
     },
     addYear() {
       this.selectedYears.push('');
